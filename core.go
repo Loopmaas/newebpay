@@ -35,7 +35,7 @@ func New(notifyRootUrl, frontendAppRootUrl *url.URL) *Api {
 		PartnerId:          os.Getenv("NEWEBPAY_PARTNER_ID"),
 		HashKey:            os.Getenv("NEWEBPAY_HASH_KEY"),
 		HashIv:             os.Getenv("NEWEBPAY_HASH_IV"),
-		NotifyRootUrl:      notifyRootUrl.JoinPath("notifications", "v1"),
+		NotifyRootUrl:      notifyRootUrl,
 		FrontendAppRootUrl: frontendAppRootUrl,
 	}
 
