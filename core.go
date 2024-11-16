@@ -181,9 +181,9 @@ func PKCS7Unpadding(data []byte) ([]byte, error) {
 }
 
 type Merchant struct {
-	MerchantId string
-	HashKey    string
-	HashIv     string
+	MerchantId string `json:"merchantId"`
+	HashKey    string `json:"hashKey"`
+	HashIv     string `json:"hashIv"`
 }
 
 func NewMerchant(merchantId, hashKey, hashIv string) *Merchant {
