@@ -47,12 +47,14 @@ func New(notifyRootUrl, frontendAppRootUrl *url.URL) *Api {
 		api.ApiUrlTransaction = "https://core.newebpay.com/API/CreditCard"
 		api.ApiUrlCreditCardCancel = "https://core.newebpay.com/API/CreditCard/Cancel"
 		api.ApiUrlCreditCardClose = "https://core.newebpay.com/API/CreditCard/Close"
+		api.ApiUrlInvoiceIssue = "https://inv.ezpay.com.tw/Api/invoice_issue"
 	default:
 		api.ApiUrlAddMerchant = "https://ccore.newebpay.com/API/AddMerchant"
 		api.ApiUrlMPGTransaction = "https://ccore.newebpay.com/MPG/mpg_gateway"
 		api.ApiUrlTransaction = "https://ccore.newebpay.com/API/CreditCard"
 		api.ApiUrlCreditCardCancel = "https://ccore.newebpay.com/API/CreditCard/Cancel"
 		api.ApiUrlCreditCardClose = "https://ccore.newebpay.com/API/CreditCard/Close"
+		api.ApiUrlInvoiceIssue = "https://cinv.ezpay.com.tw/Api/invoice_issue"
 	}
 
 	return &api
