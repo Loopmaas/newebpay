@@ -1,7 +1,6 @@
 package newebpay
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"math"
@@ -12,6 +11,7 @@ import (
 	"time"
 
 	"github.com/hexcraft-biz/xtime"
+	"github.com/mitchellh/mapstructure"
 )
 
 type InvoicePostData struct {
@@ -67,7 +67,7 @@ func (ii InvoiceItem) Amount() int {
 	return ii.Count * ii.Price
 }
 
-func (a Api) IssueInvoice(merchant *Merchant, name, email, mobileCarrierNum string, items []*InvoiceItem, requestedAt xtime.Time) (*RespInvoiceIssue, error) {
+func (a Api) IssueInvoice(merchant *Merchant, name, email, mobileCarrierNum string, items []*InvoiceItem, requestedAt xtime.Time) (*RespPayload, error) {
 	itemLen := len(items)
 	if itemLen <= 0 {
 		return nil, errors.New("Missing item")
@@ -134,9 +134,10 @@ func (a Api) IssueInvoice(merchant *Merchant, name, email, mobileCarrierNum stri
 		return nil, fmt.Errorf("Encryption failed: %v", err)
 	}
 
-	formData := url.Values{}
-	formData.Set("MerchantID_", merchant.MerchantId)
-	formData.Set("PostData_", encData)
+	formData := url.Values{
+		"MerchantID_": {merchant.MerchantId},
+		"PostData_":   {encData},
+	}
 
 	resp, err := http.PostForm(a.ApiUrlInvoiceIssue, formData)
 	if err != nil {
@@ -148,12 +149,18 @@ func (a Api) IssueInvoice(merchant *Merchant, name, email, mobileCarrierNum stri
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
-	var payload RespInvoiceIssue
-	if err := json.NewDecoder(resp.Body).Decode(&payload); err != nil {
-		return nil, fmt.Errorf("failed to decode response: %v", err)
+	payload, err := parseResponse(resp)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode payload: %v", err)
 	}
 
-	return &payload, nil
+	var result ResultInvoiceIssue
+	if err := mapstructure.Decode(payload.Result, &result); err != nil {
+		return nil, fmt.Errorf("failed to decode result: %v", err)
+	}
+
+	payload.Result = &result
+	return payload, nil
 }
 
 type RespInvoiceIssue struct {
