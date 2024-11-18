@@ -168,7 +168,7 @@ func (a Api) CreditCardTransaction(merchant *Merchant, email string,
 	merchantOrderNo, prodDesc, tokenTerm, tokenValue string,
 	amount int,
 	requestedAt xtime.Time,
-) (*ResultTransaction, error) {
+) (*RespTransaction, error) {
 	data := TransactionPostData{
 		TimeStamp:       strconv.FormatInt(time.Time(requestedAt).Unix(), 10),
 		Version:         "2.1",
@@ -212,14 +212,13 @@ func (a Api) CreditCardTransaction(merchant *Merchant, email string,
 		return nil, fmt.Errorf("failed to decode response: %v", err)
 	}
 
-	if payload.Status != "SUCCESS" {
-		return nil, fmt.Errorf("request failed: [%s]", payload.Status)
+	if payload.Status == "SUCCESS" {
+		var result ResultTransaction
+		if err := mapstructure.Decode(payload.Result, &result); err != nil {
+			return nil, fmt.Errorf("failed to decode result: %w", err)
+		}
+		payload.Result = &result
 	}
 
-	var result ResultTransaction
-	if err := mapstructure.Decode(payload.Result, &result); err != nil {
-		return nil, fmt.Errorf("failed to decode result: %w", err)
-	}
-
-	return &result, nil
+	return &payload, nil
 }
