@@ -25,6 +25,7 @@ type Api struct {
 	ApiUrlTransaction      string
 	ApiUrlCreditCardCancel string
 	ApiUrlCreditCardClose  string
+	ApiUrlInvoiceIssue     string
 	NotifyRootUrl          *url.URL
 	FrontendAppRootUrl     *url.URL
 }

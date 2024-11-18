@@ -164,7 +164,7 @@ func (r ResultTransaction) GetMerchantId() string {
 	return r.MerchantID
 }
 
-func (a Api) CreditCardTransaction(merchant *Merchant, customerId xuuid.UUID, email string,
+func (a Api) CreditCardTransaction(merchant *Merchant, email string,
 	merchantOrderNo, prodDesc, tokenTerm, tokenValue string,
 	amount int,
 	requestedAt xtime.Time,
