@@ -9,7 +9,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"net/http"
 	"net/url"
 	"os"
 	"strconv"
@@ -196,23 +195,6 @@ func NewMerchant(merchantId, hashKey, hashIv string) *Merchant {
 		HashKey:    hashKey,
 		HashIv:     hashIv,
 	}
-}
-
-func parseResponse(resp *http.Response) (*RespPayload, error) {
-	req := &http.Request{
-		Header: resp.Header,
-		Body:   resp.Body,
-	}
-
-	if err := req.ParseForm(); err != nil {
-		return nil, fmt.Errorf("failed to parse form: %v", err)
-	}
-
-	return &RespPayload{
-		Status:  req.FormValue("Status"),
-		Message: req.FormValue("Message"),
-		Result:  req.FormValue("Result"),
-	}, nil
 }
 
 type RespPayload struct {

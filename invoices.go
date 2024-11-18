@@ -1,6 +1,7 @@
 package newebpay
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"math"
@@ -67,7 +68,7 @@ func (ii InvoiceItem) Amount() int {
 	return ii.Count * ii.Price
 }
 
-func (a Api) IssueInvoice(merchant *Merchant, name, email, mobileCarrierNum string, items []*InvoiceItem, requestedAt xtime.Time) (*RespPayload, error) {
+func (a Api) IssueInvoice(merchant *Merchant, name, email, mobileCarrierNum string, items []*InvoiceItem, requestedAt xtime.Time) (*RespInvoiceIssue, error) {
 	itemLen := len(items)
 	if itemLen <= 0 {
 		return nil, errors.New("Missing item")
@@ -149,17 +150,25 @@ func (a Api) IssueInvoice(merchant *Merchant, name, email, mobileCarrierNum stri
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
-	payload, err := parseResponse(resp)
-	if err != nil {
-		return nil, fmt.Errorf("failed to decode payload: %v", err)
+	var respPayload RespPayload
+	if err := json.NewDecoder(resp.Body).Decode(&respPayload); err != nil {
+		return nil, fmt.Errorf("failed to decode response: %v", err)
 	}
 
-	var result ResultInvoiceIssue
-	if err := mapstructure.Decode(payload.Result, &result); err != nil {
-		return nil, fmt.Errorf("failed to decode result: %v", err)
+	payload := &RespInvoiceIssue{
+		Status:  respPayload.Status,
+		Message: respPayload.Message,
+		Result:  nil,
 	}
 
-	payload.Result = &result
+	if respPayload.Status == "SUCCESS" {
+		var result ResultInvoiceIssue
+		if err := mapstructure.Decode(respPayload.Result, &result); err != nil {
+			return nil, fmt.Errorf("failed to decode result: %w", err)
+		}
+		payload.Result = &result
+	}
+
 	return payload, nil
 }
 
