@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/hexcraft-biz/xtime"
-	"github.com/mitchellh/mapstructure"
 )
 
 type InvoicePostData struct {
@@ -170,8 +169,8 @@ func (a Api) IssueInvoice(merchant *Merchant,
 	}
 
 	if respPayload.Status == "SUCCESS" {
-		var result ResultInvoiceIssue
-		if err := mapstructure.Decode(respPayload.Result, &result); err != nil {
+		result, ok := respPayload.Result.(ResultInvoiceIssue)
+		if !ok {
 			return nil, fmt.Errorf("failed to decode result: %w", err)
 		}
 		payload.Result = &result
