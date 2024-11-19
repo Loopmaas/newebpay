@@ -97,8 +97,10 @@ func (a Api) IssueInvoice(merchant *Merchant,
 	taxExclusiveSalesAmount, taxAmount := calcTaxExclusiveSalesAmount(totalAmount)
 
 	printFlag := "Y"
+	carrierNum := ""
 	if mobileCarrierNum != nil {
 		printFlag = "N"
+		carrierNum = *mobileCarrierNum
 	}
 
 	postData := InvoicePostData{
@@ -115,7 +117,7 @@ func (a Api) IssueInvoice(merchant *Merchant,
 		BuyerAddress:     nil,
 		BuyerEmail:       email,
 		CarrierType:      "0",
-		CarrierNum:       *mobileCarrierNum,
+		CarrierNum:       carrierNum,
 		LoveCode:         nil,
 		PrintFlag:        printFlag,
 		KioskPrintFlag:   nil,
