@@ -101,7 +101,7 @@ func (a Api) IssueInvoice(merchant *Merchant,
 	carrierNum := ""
 	if mobileCarrierNum != nil {
 		printFlag = "N"
-		carrierType := "0"
+		carrierType = "0"
 		carrierNum = *mobileCarrierNum
 	}
 
