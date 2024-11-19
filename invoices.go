@@ -31,7 +31,7 @@ type InvoicePostData struct {
 	CarrierType      string  `json:"CarrierType"`                // 載具類別 (選填, 0)
 	CarrierNum       string  `json:"CarrierNum"`                 // 載具編號 (若有載具類別時必填, /[0-9A-Z\+-]{7})
 	LoveCode         *string `json:"LoveCode,omitempty"`         // 愛心碼 (選填，捐贈發票用)
-	PrintFlag        string  `json:"PrintFlag"`                  // 是否列印紙本發票 ([Y] 或 N)
+	PrintFlag        string  `json:"PrintFlag"`                  // 是否列印紙本發票 (Y 或 [N])
 	KioskPrintFlag   *string `json:"KioskPrintFlag,omitempty"`   // 是否列印於 Kiosk (選填)
 	TaxType          string  `json:"TaxType"`                    // 課稅類別，例如 "1" (應稅)
 	TaxRate          string  `json:"TaxRate"`                    // 稅率，例如 "5"
@@ -68,7 +68,7 @@ func (ii InvoiceItem) Amount() int {
 	return ii.Count * ii.Price
 }
 
-func (a Api) IssueInvoice(merchant *Merchant, name, email, mobileCarrierNum string, items []*InvoiceItem, requestedAt xtime.Time) (*RespInvoiceIssue, error) {
+func (a Api) IssueInvoice(merchant *Merchant, name, email string, mobileCarrierNum *string, items []*InvoiceItem, requestedAt xtime.Time) (*RespInvoiceIssue, error) {
 	itemLen := len(items)
 	if itemLen <= 0 {
 		return nil, errors.New("Missing item")
@@ -94,6 +94,11 @@ func (a Api) IssueInvoice(merchant *Merchant, name, email, mobileCarrierNum stri
 
 	taxExclusiveSalesAmount, taxAmount := calcTaxExclusiveSalesAmount(totalAmount)
 
+	printFlag := "Y"
+	if mobileCarrierNum != nil {
+		printFlag = "N"
+	}
+
 	postData := InvoicePostData{
 		RespondType:      "JSON",
 		Version:          "1.5",
@@ -108,9 +113,9 @@ func (a Api) IssueInvoice(merchant *Merchant, name, email, mobileCarrierNum stri
 		BuyerAddress:     nil,
 		BuyerEmail:       email,
 		CarrierType:      "0",
-		CarrierNum:       mobileCarrierNum,
+		CarrierNum:       *mobileCarrierNum,
 		LoveCode:         nil,
-		PrintFlag:        "Y",
+		PrintFlag:        printFlag,
 		KioskPrintFlag:   nil,
 		TaxType:          "1",
 		TaxRate:          "5",
