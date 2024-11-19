@@ -68,7 +68,10 @@ func (ii InvoiceItem) Amount() int {
 	return ii.Count * ii.Price
 }
 
-func (a Api) IssueInvoice(merchant *Merchant, name, email string, mobileCarrierNum *string, items []*InvoiceItem, requestedAt xtime.Time) (*RespInvoiceIssue, error) {
+func (a Api) IssueInvoice(merchant *Merchant,
+	name, email string, mobileCarrierNum *string,
+	merchantOrderNo string, items []*InvoiceItem, requestedAt xtime.Time,
+) (*RespInvoiceIssue, error) {
 	itemLen := len(items)
 	if itemLen <= 0 {
 		return nil, errors.New("Missing item")
@@ -104,7 +107,7 @@ func (a Api) IssueInvoice(merchant *Merchant, name, email string, mobileCarrierN
 		Version:          "1.5",
 		TimeStamp:        strconv.FormatInt(time.Time(requestedAt).Unix(), 10),
 		TransNum:         nil,
-		MerchantOrderNo:  merchant.MerchantId,
+		MerchantOrderNo:  merchantOrderNo,
 		Status:           "1",
 		CreateStatusTime: nil,
 		Category:         "B2C",
