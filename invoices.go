@@ -169,10 +169,11 @@ func (a Api) IssueInvoice(merchant *Merchant,
 	}
 
 	if respPayload.Status == "SUCCESS" {
-		result, ok := respPayload.Result.(ResultInvoiceIssue)
-		if !ok {
-			return nil, fmt.Errorf("failed to decode result: %w", err)
+		var result ResultInvoiceIssue
+		if err := json.Unmarshal(([]byte)(respPayload.Result.(string)), &result); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal result: %v", err)
 		}
+
 		payload.Result = &result
 	}
 
@@ -186,15 +187,26 @@ type RespInvoiceIssue struct {
 }
 
 type ResultInvoiceIssue struct {
-	MerchantID      string `json:"MerchantID"`
-	InvoiceTransNo  string `json:"InvoiceTransNo"`
-	MerchantOrderNo string `json:"MerchantOrderNo"`
-	TotalAmt        int    `json:"TotalAmt"`
-	InvoiceNumber   string `json:"InvoiceNumber"`
-	RandomNum       string `json:"RandomNum"`
-	CreateTime      string `json:"CreateTime"`
-	CheckCode       string `json:"CheckCode"`
-	BarCode         string `json:"BarCode"`
-	QRcodeL         string `json:"QRcodeL"`
-	QRcodeR         string `json:"QRcodeR"`
+	MerchantID      string  `json:"MerchantID"`
+	InvoiceTransNo  string  `json:"InvoiceTransNo"`
+	MerchantOrderNo string  `json:"MerchantOrderNo"`
+	TotalAmt        int     `json:"TotalAmt"`
+	InvoiceNumber   string  `json:"InvoiceNumber"`
+	RandomNum       string  `json:"RandomNum"`
+	CreateTime      string  `json:"CreateTime"`
+	CheckCode       string  `json:"CheckCode"`
+	BarCode         *string `json:"BarCode,omitempty"`
+	QRcodeL         *string `json:"QRcodeL,omitempty"`
+	QRcodeR         *string `json:"QRcodeR,omitempty"`
 }
+
+//{
+//  "CheckCode": "A161F06F2A8AAEA603F35C3645CAD2F11AA02BBFF886114F4ADD2A7959BC987E",
+//  "MerchantID": "36578437",
+//  "MerchantOrderNo": "hZiac0CExQ0bPaO0NrZO",
+//  "InvoiceNumber": "AB10000004",
+//  "TotalAmt": 600,
+//  "InvoiceTransNo": "24111919114929682",
+//  "RandomNum": "3980",
+//  "CreateTime": "2024-11-19 19:11:49"
+//}
