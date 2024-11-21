@@ -43,7 +43,7 @@ type MPGTradeInfo struct {
 	UseFor            int     `json:"UseFor"`              // 0=WEB, 1=APP, 2=定期定額
 }
 
-func (a Api) GetBindingCreditCardParams(merchant *Merchant, customerId xuuid.UUID, email, tokenTerm string, requestedAt xtime.Time) (*MPGTransaction, error) {
+func (a Api) GetBindingCreditCardParams(merchant *Merchant, customerId xuuid.UUID, email, tokenTerm, returnUrl string, requestedAt xtime.Time) (*MPGTransaction, error) {
 	returnUrl := a.FrontendAppRootUrl.JoinPath("credit-card-binding", tokenTerm, "result")
 	// POST /credit-cards/customers/:customerId/token/:tokenTerm
 	notifyUrl := a.NotifyRootUrl.JoinPath("credit-cards", "customers", customerId.String(), "token", tokenTerm)
@@ -58,7 +58,7 @@ func (a Api) GetBindingCreditCardParams(merchant *Merchant, customerId xuuid.UUI
 		MerchantOrderNo:   NewMerchantOrderIdForCreditCardBinding(),
 		Amt:               1,
 		ItemDesc:          "綁定信用卡",
-		ReturnURL:         returnUrl.String(),
+		ReturnURL:         returnUrl,
 		NotifyURL:         notifyUrl.String(),
 		ClientBackURL:     clientBackUrl.String(),
 		Email:             email,
