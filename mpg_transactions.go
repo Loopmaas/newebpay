@@ -44,7 +44,6 @@ type MPGTradeInfo struct {
 }
 
 func (a Api) GetBindingCreditCardParams(merchant *Merchant, customerId xuuid.UUID, email, tokenTerm, returnUrl string, requestedAt xtime.Time) (*MPGTransaction, error) {
-	returnUrl := a.FrontendAppRootUrl.JoinPath("credit-card-binding", tokenTerm, "result")
 	// POST /credit-cards/customers/:customerId/token/:tokenTerm
 	notifyUrl := a.NotifyRootUrl.JoinPath("credit-cards", "customers", customerId.String(), "token", tokenTerm)
 	clientBackUrl := a.FrontendAppRootUrl.JoinPath("credit-cards")
