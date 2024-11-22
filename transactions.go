@@ -43,10 +43,18 @@ func (a Api) CreditCardTransactionDownPayment1(c *gin.Context, merchant *Merchan
 	tokenTerm, tokenValue string,
 	amount int,
 	requestedAt xtime.Time,
+	returnUrl string,
 ) error {
 	// POST /transactions/customers/:customerId/order-line-items/:orderLineItemId
 	notifyUrl := a.NotifyRootUrl.JoinPath("transactions", "customers", customerId.String(), "order-line-items", orderLineItemId.String())
-	returnUrl := a.FrontendAppRootUrl.JoinPath("orders", orderId.String(), "result")
+
+	u, err := url.ParseRequestURI(returnUrl)
+	if err != nil {
+		return err
+	}
+	queryParams := u.Query()
+	queryParams.Set("orderId", orderId.String())
+	u.RawQuery = queryParams.Encode()
 
 	data := TransactionPostData{
 		TimeStamp:       strconv.FormatInt(time.Time(requestedAt).Unix(), 10),
@@ -54,7 +62,7 @@ func (a Api) CreditCardTransactionDownPayment1(c *gin.Context, merchant *Merchan
 		P3D:             "1",
 		UseFor:          0,
 		NotifyURL:       notifyUrl.String(),
-		ReturnURL:       returnUrl.String(),
+		ReturnURL:       u.String(),
 		MerchantOrderNo: merchantOrderNo,
 		Amt:             amount,
 		ProdDesc:        "租賃訂金 (30%)",
