@@ -13,6 +13,8 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/hexcraft-biz/misc"
 )
 
 type Api struct {
@@ -201,4 +203,18 @@ type RespPayload struct {
 	Status  string `json:"Status"`
 	Message string `json:"Message"`
 	Result  any    `json:"Result"`
+}
+
+const (
+	MerchantOrderNoLen     = 30
+	MerchantOrderIdCharset = misc.DefCharsetNumber | misc.DefCharsetLowercase | misc.DefCharsetUppercase
+	MerchantOrderIdPrefix  = "CCB_"
+)
+
+func NewMerchantOrderNo() string {
+	return misc.GenStringWithCharset(MerchantOrderNoLen, MerchantOrderIdCharset)
+}
+
+func NewMerchantOrderIdForCreditCardBinding() string {
+	return MerchantOrderIdPrefix + misc.GenStringWithCharset(MerchantOrderNoLen-len(MerchantOrderIdPrefix), MerchantOrderIdCharset)
 }

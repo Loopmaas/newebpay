@@ -169,20 +169,6 @@ func DecryptMPGTradeInfo(encryptedData, hashKey, hashIv string) (*RespMPGTradeIn
 }
 
 const (
-	MerchantOrderNoLen     = 20
-	MerchantOrderIdCharset = misc.DefCharsetNumber | misc.DefCharsetLowercase | misc.DefCharsetUppercase
-	MerchantOrderIdPrefix  = "CCB_"
-)
-
-func NewMerchantOrderNo() string {
-	return misc.GenStringWithCharset(MerchantOrderNoLen, MerchantOrderIdCharset)
-}
-
-func NewMerchantOrderIdForCreditCardBinding() string {
-	return MerchantOrderIdPrefix + misc.GenStringWithCharset(MerchantOrderNoLen-len(MerchantOrderIdPrefix), MerchantOrderIdCharset)
-}
-
-const (
 	TokenTermLen     = 20
 	TokenTermCharset = misc.DefCharsetNumber | misc.DefCharsetLowercase | misc.DefCharsetUppercase
 )
