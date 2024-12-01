@@ -121,14 +121,14 @@ type RequestAddMerchant struct {
 	WithdrawSetting *string `json:"WithdrawSetting,omitempty"` // nil
 }
 
-func (a Api) AddMerchant(data *RequestAddMerchant) (*ResultAddMerchant, error) {
-	encData, err := encryptData(data, a.HashKey, a.HashIv)
+func (a Api) AddMerchant(partnerId, hashKey, hashIv string, data *RequestAddMerchant) (*ResultAddMerchant, error) {
+	encData, err := encryptData(data, hashKey, hashIv)
 	if err != nil {
 		return nil, err
 	}
 
 	formData := url.Values{
-		"PartnerID_": {a.PartnerId},
+		"PartnerID_": {partnerId},
 		"PostData_":  {encData},
 	}
 

@@ -8,7 +8,6 @@ import (
 
 	"github.com/hexcraft-biz/misc"
 	"github.com/hexcraft-biz/xtime"
-	"github.com/hexcraft-biz/xuuid"
 )
 
 type MPGTransaction struct {
@@ -43,11 +42,12 @@ type MPGTradeInfo struct {
 	UseFor            int     `json:"UseFor"`              // 0=WEB, 1=APP, 2=定期定額
 }
 
-func (a Api) GetBindingCreditCardParams(merchant *Merchant, customerId xuuid.UUID, email, tokenTerm, returnUrl string, requestedAt xtime.Time) (*MPGTransaction, error) {
-	// POST /credit-cards/customers/:customerId/token/:tokenTerm
-	notifyUrl := a.NotifyRootUrl.JoinPath("credit-cards", "customers", customerId.String(), "token", tokenTerm)
-	clientBackUrl := a.FrontendAppRootUrl.JoinPath("credit-cards")
-
+func (a Api) GetBindingCreditCardParams(
+	merchant *Merchant,
+	email, tokenTerm string,
+	returnUrl, notifyUrl, clientBackUrl string,
+	requestedAt xtime.Time,
+) (*MPGTransaction, error) {
 	tradeInfo := MPGTradeInfo{
 		MerchantID:        merchant.MerchantId,
 		RespondType:       "JSON",
@@ -58,8 +58,8 @@ func (a Api) GetBindingCreditCardParams(merchant *Merchant, customerId xuuid.UUI
 		Amt:               1,
 		ItemDesc:          "綁定信用卡",
 		ReturnURL:         returnUrl,
-		NotifyURL:         notifyUrl.String(),
-		ClientBackURL:     clientBackUrl.String(),
+		NotifyURL:         notifyUrl,
+		ClientBackURL:     clientBackUrl,
 		Email:             email,
 		EmailModify:       0,
 		CREDITAEAGREEMENT: 0,

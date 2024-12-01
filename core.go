@@ -10,7 +10,6 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
-	"os"
 	"strconv"
 	"strings"
 
@@ -19,47 +18,42 @@ import (
 
 type Api struct {
 	Env                    string
-	PartnerId              string
-	HashKey                string
-	HashIv                 string
 	ApiUrlAddMerchant      string
 	ApiUrlMPGTransaction   string
 	ApiUrlTransaction      string
 	ApiUrlCreditCardCancel string
 	ApiUrlCreditCardClose  string
 	ApiUrlInvoiceIssue     string
-	NotifyRootUrl          *url.URL
-	FrontendAppRootUrl     *url.URL
+	ApiUrlInvoiceMemo      string
 }
 
-func New(notifyRootUrl, frontendAppRootUrl *url.URL) *Api {
-	api := Api{
-		Env:                os.Getenv("NEWEBPAY_ENV"),
-		PartnerId:          os.Getenv("NEWEBPAY_PARTNER_ID"),
-		HashKey:            os.Getenv("NEWEBPAY_HASH_KEY"),
-		HashIv:             os.Getenv("NEWEBPAY_HASH_IV"),
-		NotifyRootUrl:      notifyRootUrl,
-		FrontendAppRootUrl: frontendAppRootUrl,
-	}
-
-	switch api.Env {
+func New(env string) *Api {
+	switch env {
 	case "production":
-		api.ApiUrlAddMerchant = "https://core.newebpay.com/API/AddMerchant"
-		api.ApiUrlMPGTransaction = "https://core.newebpay.com/MPG/mpg_gateway"
-		api.ApiUrlTransaction = "https://core.newebpay.com/API/CreditCard"
-		api.ApiUrlCreditCardCancel = "https://core.newebpay.com/API/CreditCard/Cancel"
-		api.ApiUrlCreditCardClose = "https://core.newebpay.com/API/CreditCard/Close"
-		api.ApiUrlInvoiceIssue = "https://inv.ezpay.com.tw/Api/invoice_issue"
+		return &Api{
+			Env:                    env,
+			ApiUrlAddMerchant:      "https://core.newebpay.com/API/AddMerchant",
+			ApiUrlMPGTransaction:   "https://core.newebpay.com/MPG/mpg_gateway",
+			ApiUrlTransaction:      "https://core.newebpay.com/API/CreditCard",
+			ApiUrlCreditCardCancel: "https://core.newebpay.com/API/CreditCard/Cancel",
+			ApiUrlCreditCardClose:  "https://core.newebpay.com/API/CreditCard/Close",
+			ApiUrlInvoiceIssue:     "https://inv.ezpay.com.tw/Api/invoice_issue",
+			ApiUrlInvoiceMemo:      "https://inv.ezpay.com.tw/Api/allowance_issue",
+		}
 	default:
-		api.ApiUrlAddMerchant = "https://ccore.newebpay.com/API/AddMerchant"
-		api.ApiUrlMPGTransaction = "https://ccore.newebpay.com/MPG/mpg_gateway"
-		api.ApiUrlTransaction = "https://ccore.newebpay.com/API/CreditCard"
-		api.ApiUrlCreditCardCancel = "https://ccore.newebpay.com/API/CreditCard/Cancel"
-		api.ApiUrlCreditCardClose = "https://ccore.newebpay.com/API/CreditCard/Close"
-		api.ApiUrlInvoiceIssue = "https://cinv.ezpay.com.tw/Api/invoice_issue"
+		return &Api{
+			Env:                    env,
+			ApiUrlAddMerchant:      "https://ccore.newebpay.com/API/AddMerchant",
+			ApiUrlMPGTransaction:   "https://ccore.newebpay.com/MPG/mpg_gateway",
+			ApiUrlTransaction:      "https://ccore.newebpay.com/API/CreditCard",
+			ApiUrlCreditCardCancel: "https://ccore.newebpay.com/API/CreditCard/Cancel",
+			ApiUrlCreditCardClose:  "https://ccore.newebpay.com/API/CreditCard/Close",
+			ApiUrlInvoiceIssue:     "https://cinv.ezpay.com.tw/Api/invoice_issue",
+			ApiUrlInvoiceMemo:      "https://cinv.ezpay.com.tw/Api/allowance_issue",
+		}
 	}
 
-	return &api
+	return nil
 }
 
 func encryptData(data interface{}, hashKey, hashIv string) (string, error) {

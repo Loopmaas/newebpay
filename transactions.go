@@ -10,7 +10,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/hexcraft-biz/xtime"
-	"github.com/hexcraft-biz/xuuid"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -37,32 +36,21 @@ type TransactionPostData struct {
 	TokenSwitch     string `json:"TokenSwitch"`     // Token 類別: on
 }
 
-func (a Api) CreditCardTransactionDownPayment1(c *gin.Context, merchant *Merchant,
-	customerId xuuid.UUID, email string,
-	orderId, orderLineItemId xuuid.UUID, merchantOrderNo string,
+func (a Api) CreditCardTransactionDownPayment1(c *gin.Context,
+	merchant *Merchant, merchantOrderNo string,
+	email string,
 	tokenTerm, tokenValue string,
 	amount int,
+	notifyUrl, returnUrl string,
 	requestedAt xtime.Time,
-	returnUrl string,
 ) error {
-	// POST /transactions/customers/:customerId/order-line-items/:orderLineItemId
-	notifyUrl := a.NotifyRootUrl.JoinPath("transactions", "customers", customerId.String(), "order-line-items", orderLineItemId.String())
-
-	u, err := url.ParseRequestURI(returnUrl)
-	if err != nil {
-		return err
-	}
-	queryParams := u.Query()
-	queryParams.Set("orderId", orderId.String())
-	u.RawQuery = queryParams.Encode()
-
 	data := TransactionPostData{
 		TimeStamp:       strconv.FormatInt(time.Time(requestedAt).Unix(), 10),
 		Version:         "2.1",
 		P3D:             "1",
 		UseFor:          0,
-		NotifyURL:       notifyUrl.String(),
-		ReturnURL:       u.String(),
+		NotifyURL:       notifyUrl,
+		ReturnURL:       returnUrl,
 		MerchantOrderNo: merchantOrderNo,
 		Amt:             amount,
 		ProdDesc:        "租賃訂金 (30%)",

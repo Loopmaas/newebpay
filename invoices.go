@@ -14,7 +14,7 @@ import (
 	"github.com/hexcraft-biz/xtime"
 )
 
-type InvoicePostData struct {
+type IssueInvoicePostData struct {
 	RespondType      string  `json:"RespondType"`                // 回應格式 (JSON 或 String) "JSON"
 	Version          string  `json:"Version"`                    // API 版本號， "1.5"
 	TimeStamp        string  `json:"TimeStamp"`                  // 時間戳記，Unix 格式
@@ -105,7 +105,7 @@ func (a Api) IssueInvoice(merchant *Merchant,
 		carrierNum = *mobileCarrierNum
 	}
 
-	postData := InvoicePostData{
+	postData := IssueInvoicePostData{
 		RespondType:      "JSON",
 		Version:          "1.5",
 		TimeStamp:        strconv.FormatInt(time.Time(requestedAt).Unix(), 10),
@@ -204,13 +204,124 @@ type ResultInvoiceIssue struct {
 	QRcodeR         *string `json:"QRcodeR,omitempty"`
 }
 
-//{
-//  "CheckCode": "A161F06F2A8AAEA603F35C3645CAD2F11AA02BBFF886114F4ADD2A7959BC987E",
-//  "MerchantID": "36578437",
-//  "MerchantOrderNo": "hZiac0CExQ0bPaO0NrZO",
-//  "InvoiceNumber": "AB10000004",
-//  "TotalAmt": 600,
-//  "InvoiceTransNo": "24111919114929682",
-//  "RandomNum": "3980",
-//  "CreateTime": "2024-11-19 19:11:49"
-//}
+func (a Api) MemoInvoice(merchant *Merchant,
+	name, email string,
+	invoiceNo, merchantOrderNo string,
+	items []*InvoiceItem,
+	requestedAt xtime.Time,
+) (*RespInvoiceMemo, error) {
+	itemLen := len(items)
+	if itemLen <= 0 {
+		return nil, errors.New("Missing item")
+	}
+
+	totalAmount := 0
+	itemNames := make([]string, itemLen)
+	itemCounts := make([]string, itemLen)
+	itemUnits := make([]string, itemLen)
+	itemPrices := make([]string, itemLen)
+	itemAmts := make([]string, itemLen)
+
+	for i, item := range items {
+		amount := item.Amount()
+		totalAmount += amount
+
+		itemNames[i] = item.Name
+		itemCounts[i] = strconv.Itoa(item.Count)
+		itemUnits[i] = item.Unit
+		itemPrices[i] = strconv.Itoa(item.Price)
+		itemAmts[i] = strconv.Itoa(amount)
+	}
+
+	postData := struct {
+		RespondType     string  `json:"RespondType"` // JSON
+		Version         string  `json:"Version"`     // 1.3
+		TimeStamp       string  `json:"TimeStamp"`
+		InvoiceNo       string  `json:"InvoiceNo"`
+		MerchantOrderNo string  `json:"MerchantOrderNo"`
+		ItemName        string  `json:"ItemName"`
+		ItemCount       string  `json:"ItemCount"`
+		ItemUnit        string  `json:"ItemUnit"`
+		ItemPrice       string  `json:"ItemPrice"`
+		ItemAmt         string  `json:"ItemAmt"`
+		TaxTypeForMixed *string `json:"TaxTypeForMixed,omitempty"` //  nil
+		ItemTaxAmt      string  `json:"ItemTaxAmt"`                // 0
+		TotalAmt        int     `json:"TotalAmt"`
+		BuyerEmail      string  `json:"BuyerEmail"`
+		Status          string  `json:"Status"` // 1
+	}{
+		RespondType:     "JSON",
+		Version:         "1.3",
+		TimeStamp:       strconv.FormatInt(time.Time(requestedAt).Unix(), 10),
+		InvoiceNo:       invoiceNo,
+		MerchantOrderNo: merchantOrderNo,
+		ItemName:        strings.Join(itemNames, "|"),
+		ItemCount:       strings.Join(itemCounts, "|"),
+		ItemUnit:        strings.Join(itemUnits, "|"),
+		ItemPrice:       strings.Join(itemPrices, "|"),
+		ItemAmt:         strings.Join(itemAmts, "|"),
+		TaxTypeForMixed: nil,
+		ItemTaxAmt:      "0",
+		TotalAmt:        totalAmount,
+		BuyerEmail:      email,
+		Status:          "1",
+	}
+
+	encData, err := encryptData(postData, merchant.HashKey, merchant.HashIv)
+	if err != nil {
+		return nil, fmt.Errorf("Encryption failed: %v", err)
+	}
+
+	formData := url.Values{
+		"MerchantID_": {merchant.MerchantId},
+		"PostData_":   {encData},
+	}
+
+	resp, err := http.PostForm(a.ApiUrlInvoiceMemo, formData)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to submit form: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+
+	var respPayload RespPayload
+	if err := json.NewDecoder(resp.Body).Decode(&respPayload); err != nil {
+		return nil, fmt.Errorf("failed to decode response: %v", err)
+	}
+
+	payload := &RespInvoiceMemo{
+		Status:  respPayload.Status,
+		Message: respPayload.Message,
+		Result:  nil,
+	}
+
+	if respPayload.Status == "SUCCESS" {
+		var result ResultInvoiceMemo
+		if err := json.Unmarshal(([]byte)(respPayload.Result.(string)), &result); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal result: %v", err)
+		}
+
+		payload.Result = &result
+	}
+
+	return payload, nil
+}
+
+type RespInvoiceMemo struct {
+	Status  string             `json:"Status"`
+	Message string             `json:"Message"`
+	Result  *ResultInvoiceMemo `json:"Result"`
+}
+
+type ResultInvoiceMemo struct {
+	MerchantID      string `json:"MerchantID"`
+	AllowanceNo     string `json:"AllowanceNo"`
+	InvoiceNumber   string `json:"InvoiceNumber"`
+	MerchantOrderNo string `json:"MerchantOrderNo"`
+	AllowanceAmt    int    `json:"AllowanceAmt"`
+	RemainAmt       int    `json:"RemainAmt"`
+	CheckCode       string `json:"CheckCode"`
+}
