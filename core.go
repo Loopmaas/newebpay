@@ -25,6 +25,7 @@ type Api struct {
 	ApiUrlCreditCardClose  string
 	ApiUrlInvoiceIssue     string
 	ApiUrlInvoiceMemo      string
+	ApiUrlQueryTradeInfo   string
 }
 
 func New(env string) *Api {
@@ -39,6 +40,7 @@ func New(env string) *Api {
 			ApiUrlCreditCardClose:  "https://core.newebpay.com/API/CreditCard/Close",
 			ApiUrlInvoiceIssue:     "https://inv.ezpay.com.tw/Api/invoice_issue",
 			ApiUrlInvoiceMemo:      "https://inv.ezpay.com.tw/Api/allowance_issue",
+			ApiUrlQueryTradeInfo:   "https://core.newebpay.com/API/QueryTradeInfo",
 		}
 	default:
 		return &Api{
@@ -50,6 +52,7 @@ func New(env string) *Api {
 			ApiUrlCreditCardClose:  "https://ccore.newebpay.com/API/CreditCard/Close",
 			ApiUrlInvoiceIssue:     "https://cinv.ezpay.com.tw/Api/invoice_issue",
 			ApiUrlInvoiceMemo:      "https://cinv.ezpay.com.tw/Api/allowance_issue",
+			ApiUrlQueryTradeInfo:   "https://ccore.newebpay.com/API/QueryTradeInfo",
 		}
 	}
 

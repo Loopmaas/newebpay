@@ -33,19 +33,35 @@ type CreditCardClosePostData struct {
 // 信用卡取消請款 B033: CloseType=1, Cancel=1
 // 信用卡取消退款 B034: CloseType=2, Cancel=1 *
 
-func (a Api) CreditCardPaymentRequest(merchant *Merchant, merchantOrderNo string, amount int, requestedAt xtime.Time) (*RespCreditCardClose, error) {
-	return a.creditCardClose(merchant, "B031", merchantOrderNo, amount, requestedAt)
+func (a Api) CreditCardPaymentRequest(m *Merchant, merchantOrderNo string, amount int, requestedAt xtime.Time) (*RespCreditCardClose, error) {
+	return a.creditCardClose(m, "B031", merchantOrderNo, amount, requestedAt)
 }
 
-func (a Api) CreditCardCancelPaymentRequest(merchant *Merchant, merchantOrderNo string, amount int, requestedAt xtime.Time) (*RespCreditCardClose, error) {
-	return a.creditCardClose(merchant, "B033", merchantOrderNo, amount, requestedAt)
+func (a Api) CreditCardCancelPaymentRequest(m *Merchant, merchantOrderNo string, amount int, requestedAt xtime.Time) (*RespCreditCardClose, error) {
+	return a.creditCardClose(m, "B033", merchantOrderNo, amount, requestedAt)
 }
 
-func (a Api) CreditCardCancelRefundRequest(merchant *Merchant, merchantOrderNo string, amount int, requestedAt xtime.Time) (*RespCreditCardClose, error) {
-	return a.creditCardClose(merchant, "B032", merchantOrderNo, amount, requestedAt)
+func (a Api) CreditCardRefundRequest(m *Merchant, merchantOrderNo string, amount int, requestedAt xtime.Time) (*RespCreditCardClose, error) {
+	return a.creditCardClose(m, "B032", merchantOrderNo, amount, requestedAt)
 }
 
-func (a Api) creditCardClose(merchant *Merchant, requestType, merchantOrderNo string, amount int, requestedAt xtime.Time) (*RespCreditCardClose, error) {
+func (a Api) CreditCardRefund(m *Merchant, merchantOrderNo string, amount int, requestedAt xtime.Time) (*RespCreditCardClose, error) {
+	resp, err := a.CreditCardCancelPaymentRequest(m, merchantOrderNo, amount, requestedAt)
+	if err != nil {
+		return nil, err
+	} else if resp.Status != "SUCCESS" {
+		resp, err = a.CreditCardRefundRequest(m, merchantOrderNo, amount, requestedAt)
+		if err != nil {
+			return nil, err
+		}
+
+		return resp, nil
+	}
+
+	return resp, nil
+}
+
+func (a Api) creditCardClose(m *Merchant, requestType, merchantOrderNo string, amount int, requestedAt xtime.Time) (*RespCreditCardClose, error) {
 	var (
 		closeType int
 		cancel    int
@@ -80,13 +96,13 @@ func (a Api) creditCardClose(merchant *Merchant, requestType, merchantOrderNo st
 		Cancel:          cancel,
 	}
 
-	encData, err := encryptData(data, merchant.HashKey, merchant.HashIv)
+	encData, err := encryptData(data, m.HashKey, m.HashIv)
 	if err != nil {
 		return nil, err
 	}
 
 	formData := url.Values{
-		"MerchantID_": {merchant.MerchantId},
+		"MerchantID_": {m.MerchantId},
 		"PostData_":   {encData},
 	}
 
