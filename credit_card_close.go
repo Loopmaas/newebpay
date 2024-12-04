@@ -33,35 +33,19 @@ type CreditCardClosePostData struct {
 // 信用卡取消請款 B033: CloseType=1, Cancel=1
 // 信用卡取消退款 B034: CloseType=2, Cancel=1 *
 
-func (a Api) CreditCardPaymentRequest(m *Merchant, merchantOrderNo string, amount int, requestedAt xtime.Time) (*RespCreditCardClose, error) {
+func (a Api) CreditCardPaymentRequest(m *Merchant, merchantOrderNo string, amount int, requestedAt xtime.Time) (*RespCreditCardBehavior, error) {
 	return a.creditCardClose(m, "B031", merchantOrderNo, amount, requestedAt)
 }
 
-func (a Api) CreditCardCancelPaymentRequest(m *Merchant, merchantOrderNo string, amount int, requestedAt xtime.Time) (*RespCreditCardClose, error) {
+func (a Api) CreditCardCancelPaymentRequest(m *Merchant, merchantOrderNo string, amount int, requestedAt xtime.Time) (*RespCreditCardBehavior, error) {
 	return a.creditCardClose(m, "B033", merchantOrderNo, amount, requestedAt)
 }
 
-func (a Api) CreditCardRefundRequest(m *Merchant, merchantOrderNo string, amount int, requestedAt xtime.Time) (*RespCreditCardClose, error) {
+func (a Api) CreditCardRefundRequest(m *Merchant, merchantOrderNo string, amount int, requestedAt xtime.Time) (*RespCreditCardBehavior, error) {
 	return a.creditCardClose(m, "B032", merchantOrderNo, amount, requestedAt)
 }
 
-func (a Api) CreditCardRefund(m *Merchant, merchantOrderNo string, amount int, requestedAt xtime.Time) (*RespCreditCardClose, error) {
-	resp, err := a.CreditCardCancelPaymentRequest(m, merchantOrderNo, amount, requestedAt)
-	if err != nil {
-		return nil, err
-	} else if resp.Status != "SUCCESS" {
-		resp, err = a.CreditCardRefundRequest(m, merchantOrderNo, amount, requestedAt)
-		if err != nil {
-			return nil, err
-		}
-
-		return resp, nil
-	}
-
-	return resp, nil
-}
-
-func (a Api) creditCardClose(m *Merchant, requestType, merchantOrderNo string, amount int, requestedAt xtime.Time) (*RespCreditCardClose, error) {
+func (a Api) creditCardClose(m *Merchant, requestType, merchantOrderNo string, amount int, requestedAt xtime.Time) (*RespCreditCardBehavior, error) {
 	var (
 		closeType int
 		cancel    int
@@ -116,27 +100,10 @@ func (a Api) creditCardClose(m *Merchant, requestType, merchantOrderNo string, a
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
-	var payload RespCreditCardClose
+	var payload RespCreditCardBehavior
 	if err := json.NewDecoder(resp.Body).Decode(&payload); err != nil {
 		return nil, fmt.Errorf("failed to decode response: %v", err)
 	}
 
 	return &payload, nil
-}
-
-type RespCreditCardClose struct {
-	Status  string                 `json:"Status"`
-	Message string                 `json:"Message"`
-	Result  *ResultCreditCardClose `json:"Result,omitempty"`
-}
-
-type ResultCreditCardClose struct {
-	MerchantID      string `json:"MerchantID"`
-	Amt             int    `json:"Amt"`
-	TradeNo         string `json:"TradeNo"`
-	MerchantOrderNo string `json:"MerchantOrderNo"`
-}
-
-func (r RespCreditCardClose) IsSuccess() bool {
-	return r.Status == "SUCCESS"
 }

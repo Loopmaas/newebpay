@@ -26,7 +26,7 @@ type CreditCardCancelPostData struct {
 	TimeStamp       string  `json:"TimeStamp"`       // 時間戳記 UTC Unix timestamp
 }
 
-func (a Api) CreditCardCancelTransactionAuthorization(merchant *Merchant, merchantOrderNo string, amount int, requestedAt xtime.Time) (*RespCreditCardCancel, error) {
+func (a Api) CreditCardCancelTransactionAuthorization(merchant *Merchant, merchantOrderNo string, amount int, requestedAt xtime.Time) (*RespCreditCardBehavior, error) {
 	data := CreditCardCancelPostData{
 		RespondType:     "JSON",
 		Version:         "1.0",
@@ -57,7 +57,7 @@ func (a Api) CreditCardCancelTransactionAuthorization(merchant *Merchant, mercha
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
-	var payload RespCreditCardCancel
+	var payload RespCreditCardBehavior
 	if err := json.NewDecoder(resp.Body).Decode(&payload); err != nil {
 		return nil, fmt.Errorf("failed to decode response: %v", err)
 	}
@@ -65,20 +65,20 @@ func (a Api) CreditCardCancelTransactionAuthorization(merchant *Merchant, mercha
 	return &payload, nil
 }
 
-type RespCreditCardCancel struct {
-	Status  string                  `json:"Status"`
-	Message string                  `json:"Message"`
-	Result  *ResultCreditCardCancel `json:"Result"`
+type RespCreditCardBehavior struct {
+	Status  string                    `json:"Status"`
+	Message string                    `json:"Message"`
+	Result  *ResultCreditCardBehavior `json:"Result"`
 }
 
-type ResultCreditCardCancel struct {
-	MerchantID      string `json:"MerchantID"`
-	TradeNo         string `json:"TradeNo"`
-	Amt             int    `json:"Amt"`
-	MerchantOrderNo string `json:"MerchantOrderNo"`
-	CheckCode       string `json:"CheckCode"`
+type ResultCreditCardBehavior struct {
+	MerchantID      string  `json:"MerchantID"`
+	TradeNo         string  `json:"TradeNo"`
+	Amt             int     `json:"Amt"`
+	MerchantOrderNo string  `json:"MerchantOrderNo"`
+	CheckCode       *string `json:"CheckCode,omitempty"`
 }
 
-func (r RespCreditCardCancel) IsSuccess() bool {
+func (r RespCreditCardBehavior) IsSuccess() bool {
 	return r.Status == "SUCCESS"
 }

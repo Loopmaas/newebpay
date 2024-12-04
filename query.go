@@ -67,12 +67,50 @@ type RespQueryTradeInfo struct {
 	Result  *ResultQueryTradeInfo `json:"Result,omitempty"`
 }
 
+func (r RespQueryTradeInfo) Retain(a *Api, m *Merchant, amount int, requestedAt xtime.Time) (*RespCreditCardBehavior, error) {
+	if r.Status != "SUCCESS" {
+		return nil, fmt.Errorf("query failed [%s]: %s", r.Status, r.Message)
+	}
+
+	result := r.Result
+	if amount == result.Amt {
+		return nil, nil
+	}
+
+	refundAmount := result.Amt - amount
+	switch result.CloseStatus {
+	case "0": // 未請款
+		if amount > 0 {
+			return a.CreditCardPaymentRequest(m, result.MerchantOrderNo, amount, requestedAt)
+		} else {
+			return a.CreditCardCancelTransactionAuthorization(m, result.MerchantOrderNo, result.Amt, requestedAt)
+		}
+	case "1": // 請款申請中
+		resp, err := a.CreditCardCancelPaymentRequest(m, result.MerchantOrderNo, result.Amt, requestedAt)
+		if err != nil {
+			return nil, err
+		} else if resp.Status != "SUCCESS" {
+			return resp, nil
+		}
+
+		if amount > 0 {
+			return a.CreditCardPaymentRequest(m, result.MerchantOrderNo, amount, requestedAt)
+		} else {
+			return a.CreditCardCancelTransactionAuthorization(m, result.MerchantOrderNo, result.Amt, requestedAt)
+		}
+	case "2", "3": // 請款處理中, 請款完成
+		return a.CreditCardRefundRequest(m, result.MerchantOrderNo, refundAmount, requestedAt)
+	}
+
+	return nil, fmt.Errorf("invalid CloseStatus: %s", result.CloseStatus)
+}
+
 type ResultQueryTradeInfo struct {
 	MerchantID      string `json:"MerchantID"`
 	Amt             int    `json:"Amt"`
 	TradeNo         string `json:"TradeNo"`
 	MerchantOrderNo string `json:"MerchantOrderNo"`
-	TradeStatus     string `json:"TradeStatus"` // 0=未付款 1=付款成功 2=付款失敗 3=取消付款 6=退款
+	TradeStatus     string `json:"TradeStatus"`
 	PaymentType     string `json:"PaymentType"`
 	CreateTime      string `json:"CreateTime"`
 	PayTime         string `json:"PayTime"`
