@@ -40,7 +40,6 @@ func (a Api) QueryTradeInfo(m *Merchant, merchantOrderNo string, amount int, req
 		"TimeStamp":       {strconv.FormatInt(unixTimestamp, 10)},
 		"MerchantOrderNo": {merchantOrderNo},
 		"Amt":             {strconv.FormatInt(int64(amount), 10)},
-		"Gateway":         {"Composite"},
 	}
 
 	resp, err := http.PostForm(a.ApiUrlQueryTradeInfo, formData)
