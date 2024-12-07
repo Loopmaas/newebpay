@@ -66,6 +66,10 @@ type RespQueryTradeInfo struct {
 	Result  *ResultQueryTradeInfo `json:"Result,omitempty"`
 }
 
+func (r RespQueryTradeInfo) IsSuccess() bool {
+	return r.Status == "SUCCESS"
+}
+
 func (r RespQueryTradeInfo) RefundAll(a *Api, m *Merchant, requestedAt xtime.Time) (*RespCreditCardBehavior, error) {
 	return r.Retain(a, m, 0, requestedAt)
 }
