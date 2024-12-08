@@ -316,6 +316,10 @@ type RespInvoiceMemo struct {
 	Result  *ResultInvoiceMemo `json:"Result"`
 }
 
+func (r RespInvoiceMemo) IsSuccess() bool {
+	return r.Status == "SUCCESS"
+}
+
 type ResultInvoiceMemo struct {
 	MerchantID      string `json:"MerchantID"`
 	AllowanceNo     string `json:"AllowanceNo"`
