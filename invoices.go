@@ -190,6 +190,10 @@ type RespInvoiceIssue struct {
 	Result  *ResultInvoiceIssue `json:"Result"`
 }
 
+func (r RespInvoiceIssue) IsSuccess() bool {
+	return r.Status == "SUCCESS"
+}
+
 type ResultInvoiceIssue struct {
 	MerchantID      string  `json:"MerchantID"`
 	InvoiceTransNo  string  `json:"InvoiceTransNo"`
