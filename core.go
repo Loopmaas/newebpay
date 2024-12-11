@@ -203,7 +203,7 @@ type RespPayload struct {
 }
 
 const (
-	MerchantOrderNoLen     = 30
+	MerchantOrderNoLen     = 20
 	MerchantOrderIdCharset = misc.DefCharsetNumber | misc.DefCharsetLowercase | misc.DefCharsetUppercase
 	MerchantOrderIdPrefix  = "CCB_"
 )
