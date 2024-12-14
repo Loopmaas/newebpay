@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"math"
 	"net/http"
 	"net/url"
@@ -161,9 +162,14 @@ func (a Api) IssueInvoice(merchant *Merchant,
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
+	receivedData, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("read received data failed: %v", err)
+	}
+
 	var tp RespPayload
-	if err := json.NewDecoder(resp.Body).Decode(&tp); err != nil {
-		return nil, fmt.Errorf("failed to decode response: %v", err)
+	if err := json.Unmarshal(receivedData, &tp); err != nil {
+		return nil, fmt.Errorf("[issue-invoice] failed to decode response: %v, received data: %s", err, string(receivedData))
 	}
 
 	if !tp.IsSuccess() {
