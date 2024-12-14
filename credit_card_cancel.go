@@ -63,18 +63,27 @@ func (a Api) CreditCardCancelTransactionAuthorization(merchant *Merchant, mercha
 		return nil, fmt.Errorf("read received data failed: %v", err)
 	}
 
+	var tp RespPayload
+	if err := json.Unmarshal(receivedData, &tp); err != nil {
+		return nil, fmt.Errorf("[cancel-authorization] failed to decode response: %v, received data: %s", err, string(receivedData))
+	}
+
+	if !tp.IsSuccess() {
+		return nil, fmt.Errorf("[cancel-authorization] %s: %s")
+	}
+
 	var payload RespCreditCardBehavior
-	if err := json.Unmarshal(receivedData, &payload); err != nil {
-		return nil, fmt.Errorf("failed to decode response: %v, received data: %s", err, string(receivedData))
+	if err := tp.Assert(&payload); err != nil {
+		return nil, fmt.Errorf("[cancel-authorization] assert: %v", err)
 	}
 
 	return &payload, nil
 }
 
 type RespCreditCardBehavior struct {
-	Status  string                    `json:"Status"`
-	Message string                    `json:"Message"`
-	Result  *ResultCreditCardBehavior `json:"Result"`
+	Status  string                   `json:"Status"`
+	Message string                   `json:"Message"`
+	Result  ResultCreditCardBehavior `json:"Result"`
 }
 
 type ResultCreditCardBehavior struct {

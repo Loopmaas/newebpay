@@ -58,18 +58,27 @@ func (a Api) QueryTradeInfo(m *Merchant, merchantOrderNo string, amount int, req
 		return nil, fmt.Errorf("read received data failed: %v", err)
 	}
 
+	var tp RespPayload
+	if err := json.Unmarshal(receivedData, &tp); err != nil {
+		return nil, fmt.Errorf("[query] failed to decode response: %v, received data: %s", err, string(receivedData))
+	}
+
+	if !tp.IsSuccess() {
+		return nil, fmt.Errorf("[query] %s: %s")
+	}
+
 	var payload RespQueryTradeInfo
-	if err := json.Unmarshal(receivedData, &payload); err != nil {
-		return nil, fmt.Errorf("failed to decode response: %v, received data: %s", err, string(receivedData))
+	if err := tp.Assert(&payload); err != nil {
+		return nil, fmt.Errorf("[query] assert: %v", err)
 	}
 
 	return &payload, nil
 }
 
 type RespQueryTradeInfo struct {
-	Status  string                `json:"Status"`
-	Message string                `json:"Message"`
-	Result  *ResultQueryTradeInfo `json:"Result,omitempty"`
+	Status  string               `json:"Status"`
+	Message string               `json:"Message"`
+	Result  ResultQueryTradeInfo `json:"Result"`
 }
 
 func (r RespQueryTradeInfo) IsSuccess() bool {

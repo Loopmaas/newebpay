@@ -199,7 +199,24 @@ func NewMerchant(merchantId, hashKey, hashIv string) *Merchant {
 type RespPayload struct {
 	Status  string `json:"Status"`
 	Message string `json:"Message"`
-	Result  any    `json:"Result"`
+	Result  []byte `json:"Result"`
+}
+
+func (r RespPayload) IsSuccess() bool {
+	return r.Status == "SUCCESS"
+}
+
+func (r RespPayload) Assert(buf any) error {
+	data, err := json.Marshal(r)
+	if err != nil {
+		return err
+	}
+
+	if err := json.Unmarshal(data, buf); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 const (

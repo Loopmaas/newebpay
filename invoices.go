@@ -161,27 +161,21 @@ func (a Api) IssueInvoice(merchant *Merchant,
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
-	var respPayload RespPayload
-	if err := json.NewDecoder(resp.Body).Decode(&respPayload); err != nil {
+	var tp RespPayload
+	if err := json.NewDecoder(resp.Body).Decode(&tp); err != nil {
 		return nil, fmt.Errorf("failed to decode response: %v", err)
 	}
 
-	payload := &RespInvoiceIssue{
-		Status:  respPayload.Status,
-		Message: respPayload.Message,
-		Result:  nil,
+	if !tp.IsSuccess() {
+		return nil, fmt.Errorf("[issue-invoice] %s: %s")
 	}
 
-	if respPayload.Status == "SUCCESS" {
-		var result ResultInvoiceIssue
-		if err := json.Unmarshal(([]byte)(respPayload.Result.(string)), &result); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal result: %v", err)
-		}
-
-		payload.Result = &result
+	var payload RespInvoiceIssue
+	if err := tp.Assert(&payload); err != nil {
+		return nil, fmt.Errorf("[issue-invoice] assert: %v", err)
 	}
 
-	return payload, nil
+	return &payload, nil
 }
 
 type RespInvoiceIssue struct {
@@ -291,27 +285,21 @@ func (a Api) MemoInvoice(merchant *Merchant,
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
-	var respPayload RespPayload
-	if err := json.NewDecoder(resp.Body).Decode(&respPayload); err != nil {
+	var tp RespPayload
+	if err := json.NewDecoder(resp.Body).Decode(&tp); err != nil {
 		return nil, fmt.Errorf("failed to decode response: %v", err)
 	}
 
-	payload := &RespInvoiceMemo{
-		Status:  respPayload.Status,
-		Message: respPayload.Message,
-		Result:  nil,
+	if !tp.IsSuccess() {
+		return nil, fmt.Errorf("[memo-invoice] %s: %s")
 	}
 
-	if respPayload.Status == "SUCCESS" {
-		var result ResultInvoiceMemo
-		if err := json.Unmarshal(([]byte)(respPayload.Result.(string)), &result); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal result: %v", err)
-		}
-
-		payload.Result = &result
+	var payload RespInvoiceMemo
+	if err := tp.Assert(&payload); err != nil {
+		return nil, fmt.Errorf("[memo-invoice] assert: %v", err)
 	}
 
-	return payload, nil
+	return &payload, nil
 }
 
 type RespInvoiceMemo struct {
