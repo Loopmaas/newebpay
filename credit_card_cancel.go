@@ -69,7 +69,7 @@ func (a Api) CreditCardCancelTransactionAuthorization(merchant *Merchant, mercha
 	}
 
 	if !tp.IsSuccess() {
-		return nil, fmt.Errorf("[cancel-authorization] %s: %s")
+		return nil, fmt.Errorf("[cancel-authorization] %s: %s", tp.Status, tp.Message)
 	}
 
 	var payload RespCreditCardBehavior

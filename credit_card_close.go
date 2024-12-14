@@ -3,6 +3,7 @@ package newebpay
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -100,9 +101,23 @@ func (a Api) creditCardClose(m *Merchant, requestType, merchantOrderNo string, a
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
+	receivedData, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("read received data failed: %v", err)
+	}
+
+	var tp RespPayload
+	if err := json.Unmarshal(receivedData, &tp); err != nil {
+		return nil, fmt.Errorf("[close] failed to decode response: %v, received data: %s", err, string(receivedData))
+	}
+
+	if !tp.IsSuccess() {
+		return nil, fmt.Errorf("[close] %s: %s", tp.Status, tp.Message)
+	}
+
 	var payload RespCreditCardBehavior
-	if err := json.NewDecoder(resp.Body).Decode(&payload); err != nil {
-		return nil, fmt.Errorf("failed to decode response: %v", err)
+	if err := tp.Assert(&payload); err != nil {
+		return nil, fmt.Errorf("[close] assert: %v", err)
 	}
 
 	return &payload, nil

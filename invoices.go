@@ -291,7 +291,7 @@ func (a Api) MemoInvoice(merchant *Merchant,
 	}
 
 	if !tp.IsSuccess() {
-		return nil, fmt.Errorf("[memo-invoice] %s: %s")
+		return nil, fmt.Errorf("[memo-invoice] %s: %s", tp.Status, tp.Message)
 	}
 
 	var payload RespInvoiceMemo

@@ -64,7 +64,7 @@ func (a Api) QueryTradeInfo(m *Merchant, merchantOrderNo string, amount int, req
 	}
 
 	if !tp.IsSuccess() {
-		return nil, fmt.Errorf("[query] %s: %s")
+		return nil, fmt.Errorf("[query] %s: %s", tp.Status, tp.Message)
 	}
 
 	var payload RespQueryTradeInfo
@@ -91,7 +91,7 @@ func (r RespQueryTradeInfo) RefundAll(a *Api, m *Merchant, requestedAt xtime.Tim
 
 func (r RespQueryTradeInfo) Retain(a *Api, m *Merchant, amount int, requestedAt xtime.Time) (*RespCreditCardBehavior, error) {
 	if r.Status != "SUCCESS" {
-		return nil, fmt.Errorf("query failed [%s]: %s", r.Status, r.Message)
+		return nil, fmt.Errorf("[query] %s: %s", r.Status, r.Message)
 	}
 
 	result := r.Result
