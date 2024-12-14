@@ -65,7 +65,7 @@ func (a Api) CreditCardCancelTransactionAuthorization(merchant *Merchant, mercha
 
 	var payload RespCreditCardBehavior
 	if err := json.Unmarshal(receivedData, &payload); err != nil {
-		return nil, fmt.Errorf("failed to decode response: %v, received data: %v", err, receivedData)
+		return nil, fmt.Errorf("failed to decode response: %v, received data: %s", err, string(receivedData))
 	}
 
 	return &payload, nil
