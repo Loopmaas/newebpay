@@ -207,7 +207,12 @@ func (r RespPayload) IsSuccess() bool {
 }
 
 func (r RespPayload) Assert(result any) error {
-	if err := json.Unmarshal(([]byte)(r.Result.(string)), result); err != nil {
+	jsonData, err := json.Marshal(r.Result)
+	if err != nil {
+		return fmt.Errorf("[core] %v - %v", err, r.Result)
+	}
+
+	if err := json.Unmarshal(jsonData, result); err != nil {
 		return err
 	}
 
