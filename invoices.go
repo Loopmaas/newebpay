@@ -170,8 +170,11 @@ func (a Api) IssueInvoice(merchant *Merchant,
 		return nil, fmt.Errorf("[issue-invoice] %s: %s")
 	}
 
-	var payload RespInvoiceIssue
-	if err := tp.Assert(&payload); err != nil {
+	payload := RespInvoiceIssue{
+		Status:  tp.Status,
+		Message: tp.Message,
+	}
+	if err := tp.Assert(&payload.Result); err != nil {
 		return nil, fmt.Errorf("[issue-invoice] assert: %v", err)
 	}
 
@@ -179,9 +182,9 @@ func (a Api) IssueInvoice(merchant *Merchant,
 }
 
 type RespInvoiceIssue struct {
-	Status  string              `json:"Status"`
-	Message string              `json:"Message"`
-	Result  *ResultInvoiceIssue `json:"Result"`
+	Status  string             `json:"Status"`
+	Message string             `json:"Message"`
+	Result  ResultInvoiceIssue `json:"Result"`
 }
 
 func (r RespInvoiceIssue) IsSuccess() bool {
