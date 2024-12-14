@@ -67,8 +67,11 @@ func (a Api) QueryTradeInfo(m *Merchant, merchantOrderNo string, amount int, req
 		return nil, fmt.Errorf("[query] %s: %s", tp.Status, tp.Message)
 	}
 
-	var payload RespQueryTradeInfo
-	if err := tp.Assert(&payload); err != nil {
+	payload := RespQueryTradeInfo{
+		Status:  tp.Status,
+		Message: tp.Message,
+	}
+	if err := tp.Assert(&payload.Result); err != nil {
 		return nil, fmt.Errorf("[query] assert: %v", err)
 	}
 

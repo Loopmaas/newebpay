@@ -65,16 +65,19 @@ func (a Api) CreditCardCancelTransactionAuthorization(merchant *Merchant, mercha
 
 	var tp RespPayload
 	if err := json.Unmarshal(receivedData, &tp); err != nil {
-		return nil, fmt.Errorf("[cancel-authorization] failed to decode response: %v, received data: %s", err, string(receivedData))
+		return nil, fmt.Errorf("[cancel] failed to decode response: %v, received data: %s", err, string(receivedData))
 	}
 
 	if !tp.IsSuccess() {
-		return nil, fmt.Errorf("[cancel-authorization] %s: %s", tp.Status, tp.Message)
+		return nil, fmt.Errorf("[cancel] %s: %s", tp.Status, tp.Message)
 	}
 
-	var payload RespCreditCardBehavior
-	if err := tp.Assert(&payload); err != nil {
-		return nil, fmt.Errorf("[cancel-authorization] assert: %v", err)
+	payload := RespCreditCardBehavior{
+		Status:  tp.Status,
+		Message: tp.Message,
+	}
+	if err := tp.Assert(&payload.Result); err != nil {
+		return nil, fmt.Errorf("[cancel] assert: %v", err)
 	}
 
 	return &payload, nil

@@ -294,8 +294,11 @@ func (a Api) MemoInvoice(merchant *Merchant,
 		return nil, fmt.Errorf("[memo-invoice] %s: %s", tp.Status, tp.Message)
 	}
 
-	var payload RespInvoiceMemo
-	if err := tp.Assert(&payload); err != nil {
+	payload := RespInvoiceMemo{
+		Status:  tp.Status,
+		Message: tp.Message,
+	}
+	if err := tp.Assert(&payload.Result); err != nil {
 		return nil, fmt.Errorf("[memo-invoice] assert: %v", err)
 	}
 

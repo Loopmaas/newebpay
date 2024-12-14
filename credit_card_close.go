@@ -115,8 +115,11 @@ func (a Api) creditCardClose(m *Merchant, requestType, merchantOrderNo string, a
 		return nil, fmt.Errorf("[close] %s: %s", tp.Status, tp.Message)
 	}
 
-	var payload RespCreditCardBehavior
-	if err := tp.Assert(&payload); err != nil {
+	payload := RespCreditCardBehavior{
+		Status:  tp.Status,
+		Message: tp.Message,
+	}
+	if err := tp.Assert(&payload.Result); err != nil {
 		return nil, fmt.Errorf("[close] assert: %v", err)
 	}
 
