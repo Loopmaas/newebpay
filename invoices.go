@@ -180,7 +180,7 @@ func (a Api) IssueInvoice(merchant *Merchant,
 		Status:  tp.Status,
 		Message: tp.Message,
 	}
-	if err := tp.Assert(&payload.Result); err != nil {
+	if err := tp.AssertString(&payload.Result); err != nil {
 		return nil, fmt.Errorf("[issue-invoice] assert: %v", err)
 	}
 
@@ -307,7 +307,7 @@ func (a Api) MemoInvoice(merchant *Merchant,
 		Status:  tp.Status,
 		Message: tp.Message,
 	}
-	if err := tp.Assert(&payload.Result); err != nil {
+	if err := tp.AssertString(&payload.Result); err != nil {
 		return nil, fmt.Errorf("[memo-invoice] assert: %v", err)
 	}
 

@@ -206,6 +206,19 @@ func (r RespPayload) IsSuccess() bool {
 	return r.Status == "SUCCESS"
 }
 
+func (r RespPayload) AssertString(result any) error {
+	jsonData, ok := r.Result.(string)
+	if !ok {
+		return fmt.Errorf("[core] not string: %v", r.Result)
+	}
+
+	if err := json.Unmarshal([]byte(jsonData), result); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (r RespPayload) Assert(result any) error {
 	jsonData, err := json.Marshal(r.Result)
 	if err != nil {
