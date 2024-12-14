@@ -106,6 +106,10 @@ type RespTransaction struct {
 	Result  any    `json:"Result"` // 當 Status 為 3dVerify 時, 此時會回傳 Html 字串
 }
 
+func (r RespTransaction) IsSuccess() bool {
+	return r.Status == "SUCCESS"
+}
+
 type ResultTransaction struct {
 	MerchantID      string  `json:"MerchantID"`      // 商店代號
 	Amt             int     `json:"Amt"`             // 交易金額
