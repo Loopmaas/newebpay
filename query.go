@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -51,6 +52,13 @@ func (a Api) QueryTradeInfo(m *Merchant, merchantOrderNo string, amount int, req
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
+
+	// test
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("read received data failed: %v", err)
+	}
+	fmt.Println(data)
 
 	var payload RespQueryTradeInfo
 	if err := json.NewDecoder(resp.Body).Decode(&payload); err != nil {
