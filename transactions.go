@@ -216,13 +216,15 @@ func (a Api) CreditCardTransaction(merchant *Merchant, email string,
 		return nil, fmt.Errorf("failed to decode response: %v", err)
 	}
 
-	if payload.Status == "SUCCESS" {
-		var result ResultTransaction
-		if err := mapstructure.Decode(payload.Result, &result); err != nil {
-			return nil, fmt.Errorf("failed to decode result: %w", err)
-		}
-		payload.Result = &result
+	if !payload.IsSuccess() {
+		return nil, fmt.Errorf("[binding-transaction] %s: %s", payload.Status, payload.Message)
 	}
+
+	var result ResultTransaction
+	if err := mapstructure.Decode(payload.Result, &result); err != nil {
+		return nil, fmt.Errorf("failed to decode result: %w", err)
+	}
+	payload.Result = &result
 
 	return &payload, nil
 }
