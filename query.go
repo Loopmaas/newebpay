@@ -111,11 +111,8 @@ func (r RespQueryTradeInfo) Retain(a *Api, m *Merchant, amount int, requestedAt 
 			return a.CreditCardCancelTransactionAuthorization(m, result.MerchantOrderNo, result.Amt, requestedAt)
 		}
 	case "1": // 請款申請中
-		resp, err := a.CreditCardCancelPaymentRequest(m, result.MerchantOrderNo, result.Amt, requestedAt)
-		if err != nil {
+		if _, err := a.CreditCardCancelPaymentRequest(m, result.MerchantOrderNo, result.Amt, requestedAt); err != nil {
 			return nil, err
-		} else if resp.Status != "SUCCESS" {
-			return resp, nil
 		}
 
 		if amount > 0 {
