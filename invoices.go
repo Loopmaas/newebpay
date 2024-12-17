@@ -173,7 +173,7 @@ func (a Api) IssueInvoice(merchant *Merchant,
 	}
 
 	if !tp.IsSuccess() {
-		return nil, fmt.Errorf("[issue-invoice] %s: %s")
+		return nil, fmt.Errorf("[issue-invoice] %s: %s", tp.Status, tp.Message)
 	}
 
 	payload := RespInvoiceIssue{
