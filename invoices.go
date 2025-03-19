@@ -107,7 +107,7 @@ func (a Api) IssueInvoice(merchant *Merchant,
 	}
 
 	buyerNBN := ""
-	ItemTaxType := ""
+	ItemTaxType := "1"
 	postData := IssueInvoicePostData{
 		RespondType:      "JSON",
 		Version:          "1.5",
@@ -232,7 +232,7 @@ func (a Api) MemoInvoice(merchant *Merchant,
 	itemAmts := make([]string, itemLen)
 	itemTaxAmts := make([]string, itemLen)
 
-	ItemTaxType := ""
+	ItemTaxType := "1"
 	for i, item := range items {
 		amount := item.Amount()
 		totalAmount += amount
