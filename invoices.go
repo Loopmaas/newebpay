@@ -106,6 +106,7 @@ func (a Api) IssueInvoice(merchant *Merchant,
 		carrierNum = *mobileCarrierNum
 	}
 
+	buyerNBN := ""
 	postData := IssueInvoicePostData{
 		RespondType:      "JSON",
 		Version:          "1.5",
@@ -116,7 +117,7 @@ func (a Api) IssueInvoice(merchant *Merchant,
 		CreateStatusTime: nil,
 		Category:         "B2C",
 		BuyerName:        name,
-		BuyerUBN:         nil,
+		BuyerUBN:         &buyerNBN,
 		BuyerAddress:     nil,
 		BuyerEmail:       email,
 		CarrierType:      carrierType,
