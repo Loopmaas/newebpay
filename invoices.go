@@ -107,6 +107,7 @@ func (a Api) IssueInvoice(merchant *Merchant,
 	}
 
 	buyerNBN := ""
+	ItemTaxType := ""
 	postData := IssueInvoicePostData{
 		RespondType:      "JSON",
 		Version:          "1.5",
@@ -139,7 +140,7 @@ func (a Api) IssueInvoice(merchant *Merchant,
 		ItemUnit:         strings.Join(itemUnits, "|"),
 		ItemPrice:        strings.Join(itemPrices, "|"),
 		ItemAmt:          strings.Join(itemAmts, "|"),
-		ItemTaxType:      nil,
+		ItemTaxType:      &ItemTaxType,
 		Comment:          "",
 	}
 
@@ -229,16 +230,22 @@ func (a Api) MemoInvoice(merchant *Merchant,
 	itemUnits := make([]string, itemLen)
 	itemPrices := make([]string, itemLen)
 	itemAmts := make([]string, itemLen)
+	itemTaxAmts := make([]string, itemLen)
 
+	ItemTaxType := ""
 	for i, item := range items {
 		amount := item.Amount()
 		totalAmount += amount
+
+		taxExclusiveSalesAmount, taxAmount := calcTaxExclusiveSalesAmount(amount)
 
 		itemNames[i] = item.Name
 		itemCounts[i] = strconv.Itoa(item.Count)
 		itemUnits[i] = item.Unit
 		itemPrices[i] = strconv.Itoa(item.Price)
-		itemAmts[i] = strconv.Itoa(amount)
+		itemAmts[i] = strconv.Itoa(taxExclusiveSalesAmount)
+		itemTaxAmts[i] = strconv.Itoa(taxAmount)
+
 	}
 
 	postData := struct {
@@ -268,8 +275,8 @@ func (a Api) MemoInvoice(merchant *Merchant,
 		ItemUnit:        strings.Join(itemUnits, "|"),
 		ItemPrice:       strings.Join(itemPrices, "|"),
 		ItemAmt:         strings.Join(itemAmts, "|"),
-		TaxTypeForMixed: nil,
-		ItemTaxAmt:      "0",
+		TaxTypeForMixed: &ItemTaxType,
+		ItemTaxAmt:      strings.Join(itemTaxAmts, "|"),
 		TotalAmt:        totalAmount,
 		BuyerEmail:      email,
 		Status:          "1",
