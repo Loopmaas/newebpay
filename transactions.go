@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/Loopmaas/xtime"
 	"github.com/gin-gonic/gin"
-	"github.com/hexcraft-biz/xtime"
 	"github.com/mitchellh/mapstructure"
 )
 

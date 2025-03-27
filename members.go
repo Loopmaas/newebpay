@@ -8,9 +8,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/hexcraft-biz/misc"
-	"github.com/hexcraft-biz/xtime"
-	"github.com/hexcraft-biz/xuuid"
+	"github.com/Loopmaas/misc"
+	"github.com/Loopmaas/xtime"
+	"github.com/Loopmaas/xuuid"
 	"github.com/mitchellh/mapstructure"
 )
 

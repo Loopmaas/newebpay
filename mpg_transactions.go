@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hexcraft-biz/misc"
-	"github.com/hexcraft-biz/xtime"
+	"github.com/Loopmaas/misc"
+	"github.com/Loopmaas/xtime"
 )
 
 type MPGTransaction struct {

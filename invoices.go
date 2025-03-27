@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hexcraft-biz/xtime"
+	"github.com/Loopmaas/xtime"
 )
 
 type IssueInvoicePostData struct {

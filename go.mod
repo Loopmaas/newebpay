@@ -3,10 +3,10 @@ module github.com/Loopmaas/newebpay
 go 1.23.2
 
 require (
+	github.com/Loopmaas/misc v0.0.2
+	github.com/Loopmaas/xtime v0.0.2
+	github.com/Loopmaas/xuuid v0.0.2
 	github.com/gin-gonic/gin v1.10.0
-	github.com/hexcraft-biz/misc v0.2.0
-	github.com/hexcraft-biz/xtime v0.0.7
-	github.com/hexcraft-biz/xuuid v0.0.7
 	github.com/mitchellh/mapstructure v1.5.0
 )
 

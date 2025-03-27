@@ -13,7 +13,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/hexcraft-biz/misc"
+	"github.com/Loopmaas/misc"
 )
 
 type Api struct {

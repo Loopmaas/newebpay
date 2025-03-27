@@ -1,3 +1,9 @@
+github.com/Loopmaas/misc v0.0.2 h1:FJhmsFEUAC1HomL0FHl/6oSn8YI5przwInvcXRPX8Tg=
+github.com/Loopmaas/misc v0.0.2/go.mod h1:JQLIbFxtLQVfGVPPKWcu1B40L/PEXRlbpEJ0MFF7Na8=
+github.com/Loopmaas/xtime v0.0.2 h1:tJU5/QEmErr3lGfVizdvs/1CkNIpK532o7KvI9bZDZ4=
+github.com/Loopmaas/xtime v0.0.2/go.mod h1:3+kamqLEQJ5tPqzdjPdFLsDw3BMlNcEvbwuOfLepXG8=
+github.com/Loopmaas/xuuid v0.0.2 h1:L4PiMqYri9YXUvFdiFoFNvT/TXFqLBSF7x34E5Dr2nA=
+github.com/Loopmaas/xuuid v0.0.2/go.mod h1:8YCPu+wjdL/iHROXJLjDRxHcSFhaP8tAs9/DzWbiOqw=
 github.com/bytedance/sonic v1.11.6 h1:oUp34TzMlL+OY1OUWxHqsdkgC/Zfc85zGqw9siXjrc0=
 github.com/bytedance/sonic v1.11.6/go.mod h1:LysEHSvpvDySVdC2f87zGWf6CIKJcAvqab1ZaiQtds4=
 github.com/bytedance/sonic/loader v0.1.1 h1:c+e5Pt1k/cy5wMveRDyk2X4B9hF4g7an8N3zCYjJFNM=
@@ -30,12 +36,6 @@ github.com/google/go-cmp v0.5.5/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/
 github.com/google/gofuzz v1.0.0/go.mod h1:dBl0BpW6vV/+mYPU4Po3pmUjxk6FQPldtuIdl/M65Eg=
 github.com/google/uuid v1.5.0 h1:1p67kYwdtXjb0gL0BPiP1Av9wiZPo5A8z2cWkTZ+eyU=
 github.com/google/uuid v1.5.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
-github.com/hexcraft-biz/misc v0.2.0 h1:H7O5CIyvBP4pERhY2YbZw8fwIFA9Q9CDKnNoQURs+D8=
-github.com/hexcraft-biz/misc v0.2.0/go.mod h1:J3/q2T74FbpJQov2ZPu2sSP/KOsw+T5qZthpEMaS6KM=
-github.com/hexcraft-biz/xtime v0.0.7 h1:BkdnLmh/2qFZFNI3YISXEnqURBqRqIPwI2XhzoW7apg=
-github.com/hexcraft-biz/xtime v0.0.7/go.mod h1:sfoKKcRT7bgGBkKBMK3guIXkjwzXg52xmhswNa8mak8=
-github.com/hexcraft-biz/xuuid v0.0.7 h1:oO438lYJap/O61ACvsjcHCrBUPate2mQ3KcPSmOMEDA=
-github.com/hexcraft-biz/xuuid v0.0.7/go.mod h1:s48h62DSE8XY14OfDdD+U03B2UYDXHF+tkMxcLQhpvI=
 github.com/json-iterator/go v1.1.12 h1:PV8peI4a0ysnczrg+LtxykD8LfKY9ML6u2jnxaEnrnM=
 github.com/json-iterator/go v1.1.12/go.mod h1:e30LSqwooZae/UwlEbR2852Gd8hjQvJoHmT4TnhNGBo=
 github.com/klauspost/cpuid/v2 v2.0.9/go.mod h1:FInQzS24/EEf25PyTYn52gqo7WaD8xa0213Md/qVLRg=
