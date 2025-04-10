@@ -71,6 +71,7 @@ func (ii InvoiceItem) Amount() int {
 func (a Api) IssueInvoice(merchant *Merchant,
 	name, email string, mobileCarrierNum *string,
 	merchantOrderNo string, items []*InvoiceItem, requestedAt xtime.Time,
+	carrier_type int, invoice_carrie *string,
 ) (*RespInvoiceIssue, error) {
 	itemLen := len(items)
 	if itemLen <= 0 {
@@ -91,8 +92,14 @@ func (a Api) IssueInvoice(merchant *Merchant,
 		itemNames[i] = item.Name
 		itemCounts[i] = strconv.Itoa(item.Count)
 		itemUnits[i] = item.Unit
-		itemPrices[i] = strconv.Itoa(item.Price)
-		itemAmts[i] = strconv.Itoa(amount)
+		if carrier_type == 3 {
+			itemPrices[i] = strconv.Itoa(int(math.Round(float64(item.Price) / 1.05)))
+			itemAmts[i] = strconv.Itoa(int(math.Round(float64(amount) / 1.05)))
+		} else {
+			itemPrices[i] = strconv.Itoa(item.Price)
+			itemAmts[i] = strconv.Itoa(amount)
+		}
+
 	}
 
 	taxExclusiveSalesAmount, taxAmount := calcTaxExclusiveSalesAmount(totalAmount)
@@ -100,13 +107,24 @@ func (a Api) IssueInvoice(merchant *Merchant,
 	printFlag := "Y"
 	carrierType := ""
 	carrierNum := ""
+
+	category := "B2C"
+	buyerNBN := ""
 	if mobileCarrierNum != nil {
 		printFlag = "N"
 		carrierType = "0"
 		carrierNum = *mobileCarrierNum
 	}
 
-	buyerNBN := ""
+	switch carrier_type {
+	case 2: // 手機個人載具
+		carrierType = "0"
+		carrierNum = *invoice_carrie
+	case 3: // 營業人 B2B 統編
+		category = "B2B"
+		buyerNBN = *invoice_carrie
+	}
+
 	ItemTaxType := "1"
 	postData := IssueInvoicePostData{
 		RespondType:      "JSON",
@@ -116,7 +134,7 @@ func (a Api) IssueInvoice(merchant *Merchant,
 		MerchantOrderNo:  merchantOrderNo,
 		Status:           "1",
 		CreateStatusTime: nil,
-		Category:         "B2C",
+		Category:         category,
 		BuyerName:        name,
 		BuyerUBN:         &buyerNBN,
 		BuyerAddress:     nil,
