@@ -71,7 +71,7 @@ func (ii InvoiceItem) Amount() int {
 func (a Api) IssueInvoice(merchant *Merchant,
 	name, email string, mobileCarrierNum *string,
 	merchantOrderNo string, items []*InvoiceItem, requestedAt xtime.Time,
-	carrier_type int, invoice_carrie *string,
+	carrier_type *int, invoice_carrie *string,
 ) (*RespInvoiceIssue, error) {
 	itemLen := len(items)
 	if itemLen <= 0 {
@@ -92,7 +92,7 @@ func (a Api) IssueInvoice(merchant *Merchant,
 		itemNames[i] = item.Name
 		itemCounts[i] = strconv.Itoa(item.Count)
 		itemUnits[i] = item.Unit
-		if carrier_type == 3 {
+		if carrier_type != nil && *carrier_type == 3 {
 			itemPrices[i] = strconv.Itoa(int(math.Round(float64(item.Price) / 1.05)))
 			itemAmts[i] = strconv.Itoa(int(math.Round(float64(amount) / 1.05)))
 		} else {
@@ -116,13 +116,15 @@ func (a Api) IssueInvoice(merchant *Merchant,
 		carrierNum = *mobileCarrierNum
 	}
 
-	switch carrier_type {
-	case 2: // 手機個人載具
-		carrierType = "0"
-		carrierNum = *invoice_carrie
-	case 3: // 營業人 B2B 統編
-		category = "B2B"
-		buyerNBN = *invoice_carrie
+	if carrier_type == nil {
+		switch *carrier_type {
+		case 2: // 手機個人載具
+			carrierType = "0"
+			carrierNum = *invoice_carrie
+		case 3: // 營業人 B2B 統編
+			category = "B2B"
+			buyerNBN = *invoice_carrie
+		}
 	}
 
 	ItemTaxType := "1"
