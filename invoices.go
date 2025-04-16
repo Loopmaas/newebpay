@@ -116,7 +116,7 @@ func (a Api) IssueInvoice(merchant *Merchant,
 		carrierNum = *mobileCarrierNum
 	}
 
-	if carrier_type == nil {
+	if carrier_type != nil {
 		switch *carrier_type {
 		case 2: // 手機個人載具
 			carrierType = "0"
