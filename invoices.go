@@ -73,6 +73,7 @@ func (a Api) IssueInvoice(merchant *Merchant,
 	merchantOrderNo string, items []*InvoiceItem, requestedAt xtime.Time,
 	carrier_type *int, invoice_carrie *string,
 ) (*RespInvoiceIssue, error) {
+	fmt.Println("[newebpay] IssueInvoice")
 	itemLen := len(items)
 	if itemLen <= 0 {
 		return nil, errors.New("Missing item")
@@ -119,6 +120,7 @@ func (a Api) IssueInvoice(merchant *Merchant,
 	if carrier_type != nil {
 		switch *carrier_type {
 		case 2: // 手機個人載具
+			printFlag = "N"
 			carrierType = "0"
 			carrierNum = *invoice_carrie
 		case 3: // 營業人 B2B 統編
@@ -239,6 +241,7 @@ func (a Api) MemoInvoice(merchant *Merchant,
 	items []*InvoiceItem,
 	requestedAt xtime.Time,
 ) (*RespInvoiceMemo, error) {
+	fmt.Println("[newebpay] MemoInvoice")
 	itemLen := len(items)
 	if itemLen <= 0 {
 		return nil, errors.New("Missing item")
