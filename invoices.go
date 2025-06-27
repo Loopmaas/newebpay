@@ -48,7 +48,8 @@ type IssueInvoicePostData struct {
 	ItemPrice        string  `json:"ItemPrice"`                  // 商品單價 (多項以 | 分隔), 含稅金額
 	ItemAmt          string  `json:"ItemAmt"`                    // 商品小計 (多項以 | 分隔)
 	ItemTaxType      *string `json:"ItemTaxType,omitempty"`      // 商品稅別 (選填，多項以 | 分隔)
-	Comment          string  `json:"Comment"`                    // 備註 (選填)
+	// ItemRate         string  `json:"ItemRate"`                   // 商品稅率 (多項以 | 分隔)
+	Comment string `json:"Comment"` // 備註 (選填)
 }
 
 func calcTaxExclusiveSalesAmount(amount int) (int, int) {
@@ -85,6 +86,7 @@ func (a Api) IssueInvoice(merchant *Merchant,
 	itemUnits := make([]string, itemLen)
 	itemPrices := make([]string, itemLen)
 	itemAmts := make([]string, itemLen)
+	itemRates := make([]string, itemLen)
 
 	for i, item := range items {
 		amount := item.Amount()
@@ -93,6 +95,7 @@ func (a Api) IssueInvoice(merchant *Merchant,
 		itemNames[i] = item.Name
 		itemCounts[i] = strconv.Itoa(item.Count)
 		itemUnits[i] = item.Unit
+		itemRates[i] = "1"
 		if carrier_type != nil && *carrier_type == 3 {
 			itemPrices[i] = strconv.Itoa(int(math.Round(float64(item.Price) / 1.05)))
 			itemAmts[i] = strconv.Itoa(int(math.Round(float64(amount) / 1.05)))
@@ -130,6 +133,9 @@ func (a Api) IssueInvoice(merchant *Merchant,
 	}
 
 	ItemTaxType := "1"
+	if len(items) > 0 {
+		ItemTaxType = strings.Join(itemRates, "|")
+	}
 	postData := IssueInvoicePostData{
 		RespondType:      "JSON",
 		Version:          "1.5",
@@ -166,6 +172,11 @@ func (a Api) IssueInvoice(merchant *Merchant,
 		Comment:          "",
 	}
 
+	jsonData, err := json.Marshal(postData)
+	if err != nil {
+		fmt.Println("postData json.Marshal error:", err)
+	}
+	fmt.Println("postData json:", string(jsonData))
 	encData, err := encryptData(postData, merchant.HashKey, merchant.HashIv)
 	if err != nil {
 		return nil, fmt.Errorf("Encryption failed: %v", err)
@@ -178,11 +189,13 @@ func (a Api) IssueInvoice(merchant *Merchant,
 
 	resp, err := http.PostForm(a.ApiUrlInvoiceIssue, formData)
 	if err != nil {
+		fmt.Println("http.PostForm error:", err)
 		return nil, fmt.Errorf("Failed to submit form: %v", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
+		fmt.Println("http response status code:", resp.StatusCode)
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
