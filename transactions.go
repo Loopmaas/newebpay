@@ -89,7 +89,7 @@ func (a Api) CreditCardTransactionDownPayment1(c *gin.Context,
 	}
 
 	if payload.Status != "3dVerify" {
-		return fmt.Errorf("request failed: [%s]", payload.Status)
+		return fmt.Errorf("request failed: [%s]", payload)
 	}
 
 	result, ok := payload.Result.(string)
