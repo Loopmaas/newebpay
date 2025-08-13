@@ -112,6 +112,21 @@ func (r RespTransaction) IsSuccess() bool {
 	return r.Status == "SUCCESS"
 }
 
+func (r RespTransaction) ParseResult() (*ResultTransaction, error) {
+	b, err := json.Marshal(r.Result)
+	if err != nil {
+		return nil, err
+	}
+
+	result := ResultTransaction{}
+	err = json.Unmarshal(b, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}
+
 type ResultTransaction struct {
 	MerchantID      string  `json:"MerchantID"`      // 商店代號
 	Amt             int     `json:"Amt"`             // 交易金額
