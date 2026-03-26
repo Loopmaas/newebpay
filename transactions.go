@@ -41,13 +41,19 @@ func (a Api) CreditCardTransactionDownPayment1(c *gin.Context,
 	email string,
 	tokenTerm, tokenValue string,
 	amount int,
+	enable3DVerify bool,
 	notifyUrl, returnUrl string,
 	requestedAt xtime.Time,
 ) error {
+	p3d := "0"
+	if enable3DVerify {
+		p3d = "1"
+	}
+
 	data := TransactionPostData{
 		TimeStamp:       strconv.FormatInt(time.Time(requestedAt).Unix(), 10),
 		Version:         "2.1",
-		P3D:             "1",
+		P3D:             p3d,
 		UseFor:          0,
 		NotifyURL:       notifyUrl,
 		ReturnURL:       returnUrl,
