@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/Loopmaas/xtime"
-	"github.com/gin-gonic/gin"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -36,7 +35,7 @@ type TransactionPostData struct {
 	TokenSwitch     string `json:"TokenSwitch"`     // Token 類別: on
 }
 
-func (a Api) CreditCardTransactionDownPayment1(c *gin.Context,
+func (a Api) CreditCardTransactionDownPayment1(
 	merchant *Merchant, merchantOrderNo string,
 	email string,
 	tokenTerm, tokenValue string,
@@ -44,7 +43,7 @@ func (a Api) CreditCardTransactionDownPayment1(c *gin.Context,
 	enable3DVerify bool,
 	notifyUrl, returnUrl string,
 	requestedAt xtime.Time,
-) (any, error) {
+) (RespTransaction, error) {
 	p3d := "0"
 	if enable3DVerify {
 		p3d = "1"
@@ -67,10 +66,11 @@ func (a Api) CreditCardTransactionDownPayment1(c *gin.Context,
 		TokenTerm:   tokenTerm,
 		TokenSwitch: "on",
 	}
+	var payload RespTransaction
 
 	encData, err := encryptData(data, merchant.HashKey, merchant.HashIv)
 	if err != nil {
-		return nil, err
+		return payload, err
 	}
 
 	formData := url.Values{
@@ -78,34 +78,21 @@ func (a Api) CreditCardTransactionDownPayment1(c *gin.Context,
 		"PostData_":   {encData},
 		"Pos_":        {"JSON"},
 	}
-
 	resp, err := http.PostForm(a.ApiUrlTransaction, formData)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to submit form: %v", err)
+		return payload, fmt.Errorf("Failed to submit form: %v", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+		return payload, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
-	var payload RespTransaction
 	if err := json.NewDecoder(resp.Body).Decode(&payload); err != nil {
-		return nil, fmt.Errorf("failed to decode response: %v", err)
+		return payload, fmt.Errorf("failed to decode response: %v", err)
 	}
 
-	if enable3DVerify && payload.Status != "3dVerify" {
-		// return fmt.Errorf("request failed: [%s]", payload)
-		return nil, fmt.Errorf("request failed: [%s]", fmt.Sprintf("Status: %s, Message: %s", payload.Status, payload.Message))
-	}
-
-	result, ok := payload.Result.(string)
-	if !ok {
-		result = fmt.Sprintf("%v", result)
-	}
-
-	c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(result))
-	return payload.Result, nil
+	return payload, nil
 }
 
 type RespTransaction struct {
