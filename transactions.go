@@ -44,7 +44,7 @@ func (a Api) CreditCardTransactionDownPayment1(c *gin.Context,
 	enable3DVerify bool,
 	notifyUrl, returnUrl string,
 	requestedAt xtime.Time,
-) error {
+) (any, error) {
 	p3d := "0"
 	if enable3DVerify {
 		p3d = "1"
@@ -70,7 +70,7 @@ func (a Api) CreditCardTransactionDownPayment1(c *gin.Context,
 
 	encData, err := encryptData(data, merchant.HashKey, merchant.HashIv)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	formData := url.Values{
@@ -81,22 +81,22 @@ func (a Api) CreditCardTransactionDownPayment1(c *gin.Context,
 
 	resp, err := http.PostForm(a.ApiUrlTransaction, formData)
 	if err != nil {
-		return fmt.Errorf("Failed to submit form: %v", err)
+		return nil, fmt.Errorf("Failed to submit form: %v", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
 	var payload RespTransaction
 	if err := json.NewDecoder(resp.Body).Decode(&payload); err != nil {
-		return fmt.Errorf("failed to decode response: %v", err)
+		return nil, fmt.Errorf("failed to decode response: %v", err)
 	}
 
 	if enable3DVerify && payload.Status != "3dVerify" {
 		// return fmt.Errorf("request failed: [%s]", payload)
-		return fmt.Errorf("request failed: [%s]", fmt.Sprintf("Status: %s, Message: %s", payload.Status, payload.Message))
+		return nil, fmt.Errorf("request failed: [%s]", fmt.Sprintf("Status: %s, Message: %s", payload.Status, payload.Message))
 	}
 
 	result, ok := payload.Result.(string)
@@ -105,7 +105,7 @@ func (a Api) CreditCardTransactionDownPayment1(c *gin.Context,
 	}
 
 	c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(result))
-	return nil
+	return payload.Result, nil
 }
 
 type RespTransaction struct {
