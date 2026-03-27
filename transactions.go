@@ -94,7 +94,7 @@ func (a Api) CreditCardTransactionDownPayment1(c *gin.Context,
 		return fmt.Errorf("failed to decode response: %v", err)
 	}
 
-	if payload.Status != "3dVerify" {
+	if enable3DVerify && payload.Status != "3dVerify" {
 		// return fmt.Errorf("request failed: [%s]", payload)
 		return fmt.Errorf("request failed: [%s]", fmt.Sprintf("Status: %s, Message: %s", payload.Status, payload.Message))
 	}
