@@ -101,7 +101,7 @@ func (a Api) CreditCardTransactionDownPayment1(c *gin.Context,
 
 	result, ok := payload.Result.(string)
 	if !ok {
-		return fmt.Errorf("result assertion failed")
+		result = fmt.Sprintf("%v", result)
 	}
 
 	c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(result))
