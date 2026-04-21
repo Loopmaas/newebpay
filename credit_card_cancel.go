@@ -47,14 +47,19 @@ func (a Api) CreditCardCancelTransactionAuthorization(merchant *Merchant, mercha
 		"MerchantID_": {merchant.MerchantId},
 		"PostData_":   {encData},
 	}
+	fmt.Printf("取消信用卡授權, transactionId: %s, post url: %s, decrypt post data: %v, encrypt post data: %s\n", merchantOrderNo, a.ApiUrlCreditCardCancel, data, formData)
 
 	resp, err := http.PostForm(a.ApiUrlCreditCardCancel, formData)
+
+	fmt.Printf("取消信用卡請求結果, transactionId: %s, post url: %s, decrypt post data: %v, encrypt post data: %s, resp:%v , err: %s\n", merchantOrderNo, a.ApiUrlCreditCardCancel, data, formData, resp, err)
+
 	if err != nil {
 		return nil, fmt.Errorf("Failed to submit form: %v", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
+		fmt.Printf("取消信用卡授權請求失敗, transactionId: %s, post url: %s, decrypt post data: %v, encrypt post data: %s, resp: %v\n", merchantOrderNo, a.ApiUrlCreditCardCancel, data, formData, resp)
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
@@ -67,7 +72,7 @@ func (a Api) CreditCardCancelTransactionAuthorization(merchant *Merchant, mercha
 	if err := json.Unmarshal(receivedData, &tp); err != nil {
 		return nil, fmt.Errorf("[cancel] failed to decode response: %v, received data: %s", err, string(receivedData))
 	}
-
+	fmt.Printf("取消信用卡授權請求結果, transactionId: %s, post url: %s, decrypt post data: %v, encrypt post data: %s, response: %v\n", merchantOrderNo, a.ApiUrlCreditCardCancel, data, formData, tp)
 	if !tp.IsSuccess() {
 		return nil, fmt.Errorf("[cancel] %s: %s", tp.Status, tp.Message)
 	}

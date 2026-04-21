@@ -131,14 +131,17 @@ func (a Api) AddMerchant(partnerId, hashKey, hashIv string, data *RequestAddMerc
 		"PartnerID_": {partnerId},
 		"PostData_":  {encData},
 	}
+	fmt.Printf("新增商戶, 商戶資料:%s, get url: %s, check value: %s, formData: %s\n", data, a.ApiUrlAddMerchant, formData)
 
 	resp, err := http.PostForm(a.ApiUrlAddMerchant, formData)
+	fmt.Printf("新增商戶結果, 商戶資料:%s, get url: %s, check value: %s, formData: %s, resp: %v, err: %s\n", data, a.ApiUrlAddMerchant, formData, resp, err)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to submit form: %v", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
+		fmt.Printf("新增商戶失敗, 商戶資料:%s, get url: %s, check value: %s, formData: %s, resp: %v, err: %s\n", data, a.ApiUrlAddMerchant, formData, resp, err)
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
@@ -146,7 +149,7 @@ func (a Api) AddMerchant(partnerId, hashKey, hashIv string, data *RequestAddMerc
 	if err := json.NewDecoder(resp.Body).Decode(&payload); err != nil {
 		return nil, fmt.Errorf("failed to decode response: %v", err)
 	}
-
+	fmt.Printf("新增商戶請求結果, 商戶資料:%s, get url: %s, check value: %s, formData: %s, resp: %v, response: %v\n", data, a.ApiUrlAddMerchant, formData, resp, payload)
 	if payload.Status != "SUCCESS" {
 		return nil, fmt.Errorf("request failed: [%s]", payload.Status)
 	}
@@ -155,7 +158,7 @@ func (a Api) AddMerchant(partnerId, hashKey, hashIv string, data *RequestAddMerc
 	if err := mapstructure.Decode(payload.Result, &result); err != nil {
 		return nil, fmt.Errorf("failed to decode result: %w", err)
 	}
-
+	fmt.Printf("新增商戶請求結果解密, 商戶資料:%s, get url: %s, check value: %s, formData: %s, resp: %v, response: %v, result: %v\n", data, a.ApiUrlAddMerchant, formData, resp, payload, result)
 	return &result, nil
 }
 

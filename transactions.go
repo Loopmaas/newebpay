@@ -78,13 +78,17 @@ func (a Api) CreditCardTransactionDownPayment1(
 		"PostData_":   {encData},
 		"Pos_":        {"JSON"},
 	}
+
+	fmt.Printf("downPay1 信用卡授權, transactionId: %s, post url: %s, decrypt post data: %v, encrypt post data: %s\n", merchantOrderNo, a.ApiUrlTransaction, data, formData)
 	resp, err := http.PostForm(a.ApiUrlTransaction, formData)
+	fmt.Printf("downPay1 信用卡授權, transactionId: %s, post url: %s, decrypt post data: %v, encrypt post data: %s, resp: %v, err: %s\n", merchantOrderNo, a.ApiUrlTransaction, data, formData, resp, err)
 	if err != nil {
 		return payload, fmt.Errorf("Failed to submit form: %v", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
+		fmt.Printf("downPay1 信用卡授權失敗, transactionId: %s, post url: %s, decrypt post data: %v, encrypt post data: %s, resp: %v\n", merchantOrderNo, a.ApiUrlTransaction, data, formData, resp)
 		return payload, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
@@ -92,6 +96,7 @@ func (a Api) CreditCardTransactionDownPayment1(
 		return payload, fmt.Errorf("failed to decode response: %v", err)
 	}
 
+	fmt.Printf("downPay1 信用卡授權請求結果, transactionId: %s, post url: %s, decrypt post data: %v, encrypt post data: %s, response: %v\n", merchantOrderNo, a.ApiUrlTransaction, data, formData, payload)
 	return payload, nil
 }
 
@@ -211,13 +216,16 @@ func (a Api) CreditCardTransaction(merchant *Merchant, email string,
 		"Pos_":        {"JSON"},
 	}
 
+	fmt.Printf("信用卡授權, transactionId: %s, post url: %s, decrypt post data: %v, encrypt post data: %s\n", merchantOrderNo, a.ApiUrlTransaction, data, formData)
 	resp, err := http.PostForm(a.ApiUrlTransaction, formData)
+	fmt.Printf("信用卡授權回傳, transactionId: %s, post url: %s, decrypt post data: %v, encrypt post data: %s, resp: %v, err: %s\n", merchantOrderNo, a.ApiUrlTransaction, data, formData, resp, err)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to submit form: %v", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
+		fmt.Printf("信用卡授權失敗, transactionId: %s, post url: %s, decrypt post data: %v, encrypt post data: %s, resp: %v\n", merchantOrderNo, a.ApiUrlTransaction, data, formData, resp)
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
@@ -231,6 +239,6 @@ func (a Api) CreditCardTransaction(merchant *Merchant, email string,
 		return nil, fmt.Errorf("failed to decode result: %w", err)
 	}
 	payload.Result = &result
-
+	fmt.Printf("信用卡授權請求結果, transactionId: %s, post url: %s, decrypt post data: %v, encrypt post data: %s, response: %v\n", merchantOrderNo, a.ApiUrlTransaction, data, formData, result)
 	return &payload, nil
 }

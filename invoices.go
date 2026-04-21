@@ -74,11 +74,13 @@ func (a Api) IssueInvoice(merchant *Merchant,
 	merchantOrderNo string, items []*InvoiceItem, requestedAt xtime.Time,
 	carrier_type *int, invoice_carrie *string,
 ) (*RespInvoiceIssue, error) {
-	fmt.Println("[newebpay] IssueInvoice")
+	fmt.Println("[發票] IssueInvoice")
 	itemLen := len(items)
 	if itemLen <= 0 {
 		return nil, errors.New("Missing item")
 	}
+
+	fmt.Printf("[發票] IssueInvoice,url: %s ,merchantOrderNo:%s,name: %s, email: %s, mobileCarrierNum: %v, merchantOrderNo: %s, 發票項目資料:%v, carrier_type: %v, invoice_carrie:%v\n", a.ApiUrlInvoiceIssue, merchantOrderNo, name, email, mobileCarrierNum, merchantOrderNo, items, carrier_type, invoice_carrie)
 
 	totalAmount := 0
 	itemNames := make([]string, itemLen)
@@ -176,7 +178,7 @@ func (a Api) IssueInvoice(merchant *Merchant,
 	if err != nil {
 		fmt.Println("postData json.Marshal error:", err)
 	}
-	fmt.Println("postData json:", string(jsonData))
+
 	encData, err := encryptData(postData, merchant.HashKey, merchant.HashIv)
 	if err != nil {
 		return nil, fmt.Errorf("Encryption failed: %v", err)
@@ -187,7 +189,9 @@ func (a Api) IssueInvoice(merchant *Merchant,
 		"PostData_":   {encData},
 	}
 
+	fmt.Printf("[發票] IssueInvoice url:%v ,merchantOrderNo:%s, email: %s, mobileCarrierNum: %v, merchantOrderNo: %s, decrypt post data: %s, encrypt data:%s, form data: %v\n", a.ApiUrlInvoiceIssue, merchantOrderNo, email, mobileCarrierNum, merchantOrderNo, jsonData, encData, formData)
 	resp, err := http.PostForm(a.ApiUrlInvoiceIssue, formData)
+	fmt.Printf("[發票] IssueInvoice回傳 ,merchantOrderNo:%s, email: %s, mobileCarrierNum: %v, merchantOrderNo: %s, decrypt post data: %s, encrypt data:%s, form data: %v\n,resp: %v, err: %s\n", merchantOrderNo, email, mobileCarrierNum, merchantOrderNo, jsonData, encData, formData, resp, err)
 	if err != nil {
 		fmt.Println("http.PostForm error:", err)
 		return nil, fmt.Errorf("Failed to submit form: %v", err)
@@ -195,7 +199,7 @@ func (a Api) IssueInvoice(merchant *Merchant,
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		fmt.Println("http response status code:", resp.StatusCode)
+		fmt.Printf("[發票] IssueInvoice請求失敗, url:%s ,merchantOrderNo:%s, email: %s, mobileCarrierNum: %v, merchantOrderNo: %s, decrypt post data: %s, encrypt data:%s, form data: %v\n,resp: %v", a.ApiUrlInvoiceIssue, merchantOrderNo, email, mobileCarrierNum, merchantOrderNo, jsonData, encData, formData, resp)
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
@@ -208,7 +212,7 @@ func (a Api) IssueInvoice(merchant *Merchant,
 	if err := json.Unmarshal(receivedData, &tp); err != nil {
 		return nil, fmt.Errorf("[issue-invoice] failed to decode response: %v, received data: %s", err, string(receivedData))
 	}
-
+	fmt.Printf("[發票] IssueInvoice請求結果 ,url:%s, merchantOrderNo:%s, email: %s, mobileCarrierNum: %v, merchantOrderNo: %s, decrypt post data: %s, encrypt data:%s, form data: %v\n,resp: %v, response:%s\n", a.ApiUrlInvoiceIssue, merchantOrderNo, email, mobileCarrierNum, merchantOrderNo, jsonData, encData, formData, resp, tp)
 	if !tp.IsSuccess() {
 		return nil, fmt.Errorf("[issue-invoice] %s: %s", tp.Status, tp.Message)
 	}
@@ -259,7 +263,7 @@ func (a Api) MemoInvoice(merchant *Merchant,
 	if itemLen <= 0 {
 		return nil, errors.New("Missing item")
 	}
-
+	fmt.Printf("[發票折讓] IssueInvoice , url:%s , merchantOrderNo:%s,name: %s, email: %s,  merchantOrderNo: %s, 發票項目資料:%v", a.ApiUrlInvoiceMemo, merchantOrderNo, name, email, merchantOrderNo, items)
 	totalAmount := 0
 	itemNames := make([]string, itemLen)
 	itemCounts := make([]string, itemLen)
@@ -327,14 +331,16 @@ func (a Api) MemoInvoice(merchant *Merchant,
 		"MerchantID_": {merchant.MerchantId},
 		"PostData_":   {encData},
 	}
-
+	fmt.Printf("[發票折讓] IssueInvoice , url:%s , merchantOrderNo:%s,name: %s, email: %s,  merchantOrderNo: %s, 發票項目資料:%v, decrypt post data:%v, encrypt post data:%s, formData: %s\n", a.ApiUrlInvoiceMemo, merchantOrderNo, name, email, merchantOrderNo, items, postData, encData, formData)
 	resp, err := http.PostForm(a.ApiUrlInvoiceMemo, formData)
+	fmt.Printf("[發票折讓] IssueInvoice回傳 , url:%s , merchantOrderNo:%s,name: %s, email: %s,  merchantOrderNo: %s, 發票項目資料:%v, decrypt post data:%v, encrypt post data:%s, formData: %s, resp: %v,err: %s\n", a.ApiUrlInvoiceMemo, merchantOrderNo, name, email, merchantOrderNo, items, postData, encData, formData, resp, err)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to submit form: %v", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
+		fmt.Printf("[發票折讓] IssueInvoice請求失敗 , url:%s , merchantOrderNo:%s,name: %s, email: %s,  merchantOrderNo: %s, 發票項目資料:%v, decrypt post data:%v, encrypt post data:%s, formData: %s, resp:%v\n", a.ApiUrlInvoiceMemo, merchantOrderNo, name, email, merchantOrderNo, items, postData, encData, formData, resp)
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
@@ -342,7 +348,7 @@ func (a Api) MemoInvoice(merchant *Merchant,
 	if err := json.NewDecoder(resp.Body).Decode(&tp); err != nil {
 		return nil, fmt.Errorf("failed to decode response: %v", err)
 	}
-
+	fmt.Printf("[發票折讓] IssueInvoice請求結果 , url:%s , merchantOrderNo:%s,name: %s, email: %s,  merchantOrderNo: %s, 發票項目資料:%v, decrypt post data:%v, encrypt post data:%s, formData: %s, response: %v\n", a.ApiUrlInvoiceMemo, merchantOrderNo, name, email, merchantOrderNo, items, postData, encData, formData, tp)
 	if !tp.IsSuccess() {
 		return nil, fmt.Errorf("[memo-invoice] %s: %s invoiceNo: %s", tp.Status, tp.Message, invoiceNo)
 	}

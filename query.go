@@ -43,13 +43,18 @@ func (a Api) QueryTradeInfo(m *Merchant, merchantOrderNo string, amount int, req
 		"Amt":             {strconv.FormatInt(int64(amount), 10)},
 	}
 
+	fmt.Printf("查詢信用卡交易, transactionId:%s, get url: %s, check value: %s, formData: %s", merchantOrderNo, a.ApiUrlQueryTradeInfo, checkValueData, formData)
+
 	resp, err := http.PostForm(a.ApiUrlQueryTradeInfo, formData)
+	fmt.Printf("查詢信用卡交易 api 結果, transactionId:%s, get url: %s, check value: %s, formData: %s, resp: %v, err: %s", merchantOrderNo, a.ApiUrlQueryTradeInfo, checkValueData, formData, resp, err)
+
 	if err != nil {
 		return nil, fmt.Errorf("Failed to submit form: %v", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
+		fmt.Printf("查詢信用卡交易失敗, transactionId:%s, get url: %s, check value: %s, formData: %s, resp: %v", merchantOrderNo, a.ApiUrlQueryTradeInfo, checkValueData, formData, resp)
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
@@ -63,6 +68,7 @@ func (a Api) QueryTradeInfo(m *Merchant, merchantOrderNo string, amount int, req
 		return nil, fmt.Errorf("[query] failed to decode response: %v, received data: %s", err, string(receivedData))
 	}
 
+	fmt.Printf("查詢信用卡交易請求結果, transactionId:%s, get url: %s, check value: %s, formData: %s, response: %v", merchantOrderNo, a.ApiUrlQueryTradeInfo, checkValueData, formData, tp)
 	if !tp.IsSuccess() {
 		return nil, fmt.Errorf("[query] %s: %s", tp.Status, tp.Message)
 	}

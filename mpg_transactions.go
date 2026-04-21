@@ -70,8 +70,9 @@ func (a Api) GetBindingCreditCardParams(
 		TokenLife:         nil,
 		UseFor:            0,
 	}
-	fmt.Printf("!! log get binding credit card params: %+v\n", tradeInfo)
+
 	encTradeInfo, err := encryptData(tradeInfo, merchant.HashKey, merchant.HashIv)
+	fmt.Printf("!! 信用卡綁定 log get binding credit card params: %+v, encrypt: %s ,err: %\ns", tradeInfo, encTradeInfo, err)
 	if err != nil {
 		return nil, err
 	}
