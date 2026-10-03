@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/Loopmaas/xtime"
@@ -92,7 +93,16 @@ func (a Api) creditCardClose(m *Merchant, requestType, merchantOrderNo string, a
 	}
 	fmt.Printf("取消信用卡退款, transactionId: %s, post url: %s, decrypt post data: %v, encrypt post data: %s\n", merchantOrderNo, a.ApiUrlCreditCardClose, data, formData)
 
-	resp, err := http.PostForm(a.ApiUrlCreditCardClose, formData)
+	// resp, err := http.PostForm(a.ApiUrlCreditCardClose, formData)
+	req, err := http.NewRequest(http.MethodPost, a.ApiUrlCreditCardClose, strings.NewReader(formData.Encode()))
+	if err != nil {
+		return nil, fmt.Errorf("[close] new request: %v", err)
+	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("User-Agent", "newebpay_96777964")
+
+	client := &http.Client{Timeout: 30 * time.Second}
+	resp, err := client.Do(req)
 
 	fmt.Printf("取消信用卡退款請求結果, transactionId: %s, post url: %s, decrypt post data: %v, encrypt post data: %s, resp:%s, err: %s\n", merchantOrderNo, a.ApiUrlCreditCardClose, data, formData, resp, err)
 	if err != nil {

@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/Loopmaas/xtime"
@@ -80,7 +81,16 @@ func (a Api) CreditCardTransactionDownPayment1(
 	}
 
 	fmt.Printf("downPay1 信用卡授權, transactionId: %s, post url: %s, decrypt post data: %v, encrypt post data: %s\n", merchantOrderNo, a.ApiUrlTransaction, data, formData)
-	resp, err := http.PostForm(a.ApiUrlTransaction, formData)
+	// resp, err := http.PostForm(a.ApiUrlTransaction, formData)
+	req, err := http.NewRequest(http.MethodPost, a.ApiUrlTransaction, strings.NewReader(formData.Encode()))
+	if err != nil {
+		return payload, fmt.Errorf("[transaction] new request: %v", err)
+	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("User-Agent", "newebpay_96777964")
+
+	client := &http.Client{Timeout: 30 * time.Second}
+	resp, err := client.Do(req)
 	fmt.Printf("downPay1 信用卡授權, transactionId: %s, post url: %s, decrypt post data: %v, encrypt post data: %s, resp: %v, err: %s\n", merchantOrderNo, a.ApiUrlTransaction, data, formData, resp, err)
 	if err != nil {
 		return payload, fmt.Errorf("Failed to submit form: %v", err)
@@ -217,7 +227,16 @@ func (a Api) CreditCardTransaction(merchant *Merchant, email string,
 	}
 
 	fmt.Printf("信用卡授權, transactionId: %s, post url: %s, decrypt post data: %v, encrypt post data: %s\n", merchantOrderNo, a.ApiUrlTransaction, data, formData)
-	resp, err := http.PostForm(a.ApiUrlTransaction, formData)
+	// resp, err := http.PostForm(a.ApiUrlTransaction, formData)
+	req, err := http.NewRequest(http.MethodPost, a.ApiUrlTransaction, strings.NewReader(formData.Encode()))
+	if err != nil {
+		return nil, fmt.Errorf("[transaction] new request: %v", err)
+	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("User-Agent", "newebpay_96777964")
+
+	client := &http.Client{Timeout: 30 * time.Second}
+	resp, err := client.Do(req)
 	fmt.Printf("信用卡授權回傳, transactionId: %s, post url: %s, decrypt post data: %v, encrypt post data: %s, resp: %v, err: %s\n", merchantOrderNo, a.ApiUrlTransaction, data, formData, resp, err)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to submit form: %v", err)
