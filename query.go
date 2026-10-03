@@ -45,7 +45,16 @@ func (a Api) QueryTradeInfo(m *Merchant, merchantOrderNo string, amount int, req
 
 	fmt.Printf("查詢信用卡交易, transactionId:%s, get url: %s, check value: %s, formData: %s", merchantOrderNo, a.ApiUrlQueryTradeInfo, checkValueData, formData)
 
-	resp, err := http.PostForm(a.ApiUrlQueryTradeInfo, formData)
+	req, err := http.NewRequest(http.MethodPost, a.ApiUrlQueryTradeInfo, strings.NewReader(formData.Encode()))
+	if err != nil {
+		return nil, fmt.Errorf("[query] new request: %v", err)
+	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("User-Agent", "newebpay_86777984")
+
+	client := &http.Client{Timeout: 30 * time.Second}
+	resp, err := client.Do(req)
+	// resp, err := http.PostForm(a.ApiUrlQueryTradeInfo, formData)
 	fmt.Printf("查詢信用卡交易 api 結果, transactionId:%s, get url: %s, check value: %s, formData: %s, resp: %v, err: %s", merchantOrderNo, a.ApiUrlQueryTradeInfo, checkValueData, formData, resp, err)
 
 	if err != nil {
