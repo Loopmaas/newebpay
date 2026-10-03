@@ -50,7 +50,7 @@ func (a Api) QueryTradeInfo(m *Merchant, merchantOrderNo string, amount int, req
 		return nil, fmt.Errorf("[query] new request: %v", err)
 	}
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Set("User-Agent", "newebpay_86777984")
+	req.Header.Set("User-Agent", "newebpay_86777964")
 
 	client := &http.Client{Timeout: 30 * time.Second}
 	resp, err := client.Do(req)
